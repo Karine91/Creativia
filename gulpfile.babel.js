@@ -41,9 +41,6 @@ export const clean = () => del([ 'dist' ]);
 //pug
 export function templates() {
   return gulp.src('./index.pug')
-      .pipe(plumber({
-          errorHandler: function(error){console.log(error); this.end();}
-      }))
       .pipe(pug({pretty: true}))
       .pipe(gulp.dest(paths.templates.dest))
 };
@@ -63,10 +60,7 @@ export function images() {
 
 //STYLES
 export function styles() {
-  return gulp.src('scss/main.scss')
-      .pipe(plumber({
-          errorHandler: function(error){console.log(error); this.end();}
-      }))
+  return gulp.src(paths.styles.src)
       .pipe(sass())
       .pipe( sourcemaps.init() )
       .pipe( postcss([ require('precss'), require('autoprefixer')]) )
@@ -83,9 +77,14 @@ export function scripts() {
 }
 
 export function watchFiles() {
-  gulp.watch(paths.templates.src, gulp.series(templates, browserSync.reload));
-  gulp.watch(paths.scripts.src, gulp.series(scripts, browserSync.reload));
-  gulp.watch(paths.styles.src, gulp.series(styles, browserSync.reload));
+  gulp.watch(paths.templates.src, gulp.series(templates));
+  gulp.watch(paths.scripts.src, gulp.series(scripts));
+  gulp.watch(paths.styles.src, gulp.series(styles));
+  gulp.watch([
+    'app/*.html',
+    'app/styles/**/*.css',
+    'app/scripts/**/*.js'
+  ]).on('change', browserSync.reload);
 }
 
 //Build
