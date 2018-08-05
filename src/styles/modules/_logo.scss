@@ -1,0 +1,17 @@
+.logo {
+  position: relative;
+
+  &__shape {
+    fill: $dark-brown;
+    stroke: $red;
+    stroke-width: 2px;
+  }
+  &__text {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    color: #fff;
+  }
+}
