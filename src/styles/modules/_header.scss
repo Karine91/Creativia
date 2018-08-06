@@ -1,0 +1,11 @@
+.header {
+  background-color: $black;
+  position: absolute;
+  z-index: 2;
+  width: 100%;
+  min-height: 67px;
+  margin-top: 3px;
+  &__wrapper {
+    display: flex;
+  }
+}

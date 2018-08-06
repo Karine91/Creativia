@@ -12,12 +12,50 @@
     <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p><![endif]-->
     <div class="main">
       <header class="header">
-        <div class="logo"><svg class="logo__shape"  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="250" height="105">
+        <div class="container">
+          <div class="header__wrapper">
+            <div class="logo"><svg class="logo__shape"  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="250" height="105">
 <polygon points="0,0 250,0 250,40  185,105 65,105 0,40 0,0" />
 </svg>
-          <div class="logo__text">Creativia</div>
+              <div class="logo__text-img-wrapper">Creativia<img class="logo__image" src="/assets/images/logo-text.png" alt="Creactivia"></div>
+            </div>
+            <nav class="menu">
+              <ul class="menu__list">
+                <li class="menu__item"><a class="menu__link">Home         </a></li>
+                <li class="menu__item"><a class="menu__link">About us         </a></li>
+                <li class="menu__item"><a class="menu__link">Portfolio         </a></li>
+                <li class="menu__item"><a class="menu__link">clients         </a></li>
+                <li class="menu__item"><a class="menu__link">team         </a></li>
+                <li class="menu__item"><a class="menu__link">services         </a></li>
+                <li class="menu__item"><a class="menu__link">blog         </a></li>
+                <li class="menu__item"><a class="menu__link">contact         </a></li>
+              </ul>
+            </nav>
+          </div>
         </div>
       </header>
+      <div class="slider">
+        <div class="slider__img-wrapper">
+          <picture>
+            <source media="(min-width: 1380px)" srcset="/assets/images/slides/slide1--large.jpg 1920w">
+            <source media="(min-width: 970px)" srcset="/assets/images/slides/slide1--medium.jpg 1380w">
+            <source media="(min-width: 640px)" srcset="/assets/images/slides/slide1--small.jpg 970w"><img class="slider__image" srcset="/assets/images/slides/slide1--smaller.jpg 640w" alt="creativia">
+          </picture>
+        </div>
+        <div class="slider__txt-wrapper">
+          <div class="container">
+            <div class="slider__txt-content">
+              <div class="slider__title">why <span class="slider__title--highlighted">creativia ?</span></div>
+              <p class="slider__description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et dolor justo. Phasellus eu ligula ac nisl volutpat tincidunt. Vestibulum vitae rhoncus odio Fusce sed enim erat. Mauris dictum lorem eu tortor porta placerat. Suspendisse ac vestibulum eros. Nulla mi ipsum, consequat commodo condimentum vitae,</p>
+              <div class="slider__buttons">
+                <button class="btn btn--red">Features</button>
+                <button class="btn">Free Psd </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="slider__nav"><a class="icon icon--arrow-left"></a><a class="icon icon--arrow-right"></a></div>
+      </div>
     </div>
     <script src="/assets/scripts/main.js"></script>
   </body>

@@ -1,0 +1,64 @@
+.menu {
+  display: none;
+
+  @include tablets {
+    display: block;
+  }
+
+  padding-left: 250px;
+  margin-left: auto;
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+  }
+
+  &__item {
+    margin-left: 3.5rem;
+    opacity: 0.5;
+    transition: opacity 0.3s ease;
+    position: relative;
+    &:after,
+    &:before {
+      content: "";
+      width: 27px;
+      height: 2px;
+      display: block;
+      background: $red;
+      margin: 0 auto;
+      position: absolute;
+      left: 0;
+      right: 0;
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+    &:after {
+      bottom: 0;
+      transform: translateY(10px);
+    }
+    &:before {
+      height: 3px;
+      top: -3px;
+      transform: translateY(-10px);
+    }
+    &:hover {
+      opacity: 1;
+      cursor: pointer;
+      &:after,
+      &:before {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  }
+
+  &__link {
+    font-family: "Raleway-Regular", sans-serif;
+    font-size: $m-font;
+    color: #fff;
+    text-transform: uppercase;
+    display: block;
+    padding: 2.3rem 0;
+  }
+}

@@ -1,0 +1,17 @@
+        .icon {
+            background-image: url('../../assets/images/sprites/sprite-bd7d82ca.svg');
+        }
+
+        .no-svg .icon {
+            background-image: url('../../assets/images/sprites/sprite-bd7d82ca.png');
+        }
+    .icon--arrow-left {
+        width: 19px;
+        height: 30px;
+        background-position: 0 0;
+    }
+    .icon--arrow-right {
+        width: 19px;
+        height: 30px;
+        background-position: 100% 0;
+    }

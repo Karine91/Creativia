@@ -1,17 +1,36 @@
 .logo {
-  position: relative;
+  position: absolute;
+  display: inline-flex;
+  width: 250px;
+  top: -4px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+
+  @include tablets {
+    left: auto;
+    right: auto;
+    margin: 0;
+  }
 
   &__shape {
     fill: $dark-brown;
     stroke: $red;
     stroke-width: 2px;
   }
-  &__text {
+  &__text-img-wrapper {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-indent: -999999px;
+  }
+
+  &__image {
+    margin-top: -1rem;
   }
 }

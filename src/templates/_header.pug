@@ -1,8 +1,18 @@
 header.header
-    .logo
-        <svg class="logo__shape"  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="250" height="105">
-            <polygon points="0,0 250,0 250,40  185,105 65,105 0,40 0,0" />
-        </svg>
+    .container
+        .header__wrapper
+            .logo
+                <svg class="logo__shape"  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="250" height="105">
+                    <polygon points="0,0 250,0 250,40  185,105 65,105 0,40 0,0" />
+                </svg>
 
-        .logo__text Creativia
+                .logo__text-img-wrapper
+                    | Creativia
+                    img.logo__image(src="/assets/images/logo-text.png", alt="Creactivia")
+            nav.menu
+                - var menu = ["Home", "About us", "Portfolio", "clients", "team", "services", "blog", "contact"]
+                ul.menu__list
+                    each item in menu
+                        li.menu__item
+                            a.menu__link #{item}         
         

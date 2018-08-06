@@ -1,0 +1,19 @@
+.slider
+    .slider__img-wrapper
+        picture
+            source(media="(min-width: 1380px)", srcset="/assets/images/slides/slide1--large.jpg 1920w")
+            source(media="(min-width: 970px)", srcset="/assets/images/slides/slide1--medium.jpg 1380w")
+            source(media="(min-width: 640px)", srcset="/assets/images/slides/slide1--small.jpg 970w")
+            img.slider__image(srcset="/assets/images/slides/slide1--smaller.jpg 640w", alt="creativia")
+    .slider__txt-wrapper
+        .container
+            .slider__txt-content
+                .slider__title why 
+                    span.slider__title--highlighted creativia ?
+                p.slider__description Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et dolor justo. Phasellus eu ligula ac nisl volutpat tincidunt. Vestibulum vitae rhoncus odio Fusce sed enim erat. Mauris dictum lorem eu tortor porta placerat. Suspendisse ac vestibulum eros. Nulla mi ipsum, consequat commodo condimentum vitae,
+                .slider__buttons
+                    button.btn.btn--red Features
+                    button.btn Free Psd 
+    .slider__nav
+        a.icon.icon--arrow-left
+        a.icon.icon--arrow-right
