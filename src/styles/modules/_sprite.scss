@@ -1,17 +1,15 @@
-        .icon {
-            background-image: url('../../assets/images/sprites/sprite-bd7d82ca.svg');
-        }
+.icon {
+	display: inline-block;
+	width: 1em;
+	height: 1em;
+	fill: currentColor;
+}
 
-        .no-svg .icon {
-            background-image: url('../../assets/images/sprites/sprite-bd7d82ca.png');
-        }
-    .icon--arrow-left {
-        width: 19px;
-        height: 30px;
-        background-position: 0 0;
-    }
-    .icon--arrow-right {
-        width: 19px;
-        height: 30px;
-        background-position: 100% 0;
-    }
+.icon--arrow-left {
+	font-size:(28/10)*1rem;
+	width:(17/28)*1em;
+}
+.icon--arrow-right {
+	font-size:(28/10)*1rem;
+	width:(17/28)*1em;
+}

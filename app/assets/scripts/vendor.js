@@ -118,7 +118,7 @@ eval("\n\nmodule.exports = function (module) {\n\tif (!module.webpackPolyfill) {
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\n__webpack_require__(/*! ../../temp/scripts/modernizr */ \"./temp/scripts/modernizr.js\");\n\n__webpack_require__(/*! picturefill */ \"./node_modules/picturefill/dist/picturefill.js\");\n\n//# sourceURL=webpack:///./src/scripts/vendor.js?");
+eval("\n\n__webpack_require__(/*! ../../temp/scripts/modernizr */ \"./temp/scripts/modernizr.js\");\n\n__webpack_require__(/*! picturefill */ \"./node_modules/picturefill/dist/picturefill.js\");\n\n__webpack_require__(!(function webpackMissingModule() { var e = new Error(\"Cannot find module 'svgxuse'\"); e.code = 'MODULE_NOT_FOUND'; throw e; }()));\n\n//# sourceURL=webpack:///./src/scripts/vendor.js?");
 
 /***/ }),
 

@@ -5,7 +5,8 @@
   width: 100%;
   min-height: 67px;
   margin-top: 3px;
+
   &__wrapper {
-    display: flex;
+    @extend .row;
   }
 }

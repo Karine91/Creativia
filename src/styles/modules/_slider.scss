@@ -36,19 +36,57 @@
     width: 100%;
     height: 100%;
     color: #fff;
-    padding-top: 150px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     text-align: center;
   }
 
-  &__txt-content {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  &__title {
+    font-family: "Raleway-Bold", sans-serif;
+    font-size: 3rem;
+    line-height: 1;
+    margin-top: $m-size;
+    margin-bottom: 4rem;
+  }
+
+  &__title--highlighted {
+    color: $red;
+  }
+
+  &__description {
+    margin: 0 0 5rem;
+    padding: 0 5rem;
+    line-height: 1.2;
+  }
+
+  &__buttons {
+    .btn + .btn {
+      margin-left: $m-size;
+    }
   }
 
   &__nav {
     .icon {
       display: block;
+      position: absolute;
+      top: 50%;
+      color: #a4a4a4;
+      transition: all 0.3s ease;
+
+      &:hover {
+        cursor: pointer;
+        color: $red;
+      }
+
+      &--arrow-left {
+        left: 3.5rem;
+      }
+
+      &--arrow-right {
+        right: 3.5rem;
+      }
     }
   }
 }

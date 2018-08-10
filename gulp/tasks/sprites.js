@@ -2,78 +2,70 @@ var gulp = require("gulp"),
   svgSprite = require("gulp-svg-sprite"),
   rename = require("gulp-rename"),
   del = require("del"),
-  svg2png = require("gulp-svg2png");
+  svgmin = require("gulp-svgmin"),
+  cheerio = require("gulp-cheerio"),
+  replace = require("gulp-replace");
+path = require("path");
 
 var config = {
   mode: {
-    css: {
-      variables: {
-        replaceSvgWithPng: function() {
-          return function(sprite, render) {
-            return render(sprite)
-              .split(".svg")
-              .join(".png");
-          };
-        }
-      },
+    symbol: {
       sprite: "sprite.svg",
       render: {
-        css: {
-          template: "./gulp/templates/sprite.css"
+        scss: {
+          template: "./gulp/templates/sprite.scss",
+          dest: "./_sprite.scss"
         }
       }
-    }
-  },
-  shape: {
-    spacing: {
-      padding: 1
     }
   }
 };
 
 gulp.task("beginClean", function() {
-  return del(["./temp/sprite", "./app/assets/images/sprites"]);
+  return del("./app/assets/images/sprites");
 });
 
 gulp.task("createSprite", function() {
-  return gulp
-    .src("./app/assets/images/icons/**/*.svg")
-    .pipe(svgSprite(config))
-    .pipe(gulp.dest("./temp/sprite/"));
+  return (
+    gulp
+      .src("./app/assets/images/icons/**/*.svg")
+      .pipe(
+        svgmin({
+          js2svg: {
+            pretty: true
+          }
+        })
+      )
+      // remove all fill, style and stroke declarations in out shapes
+      .pipe(
+        cheerio({
+          run: function($) {
+            $("[fill]").removeAttr("fill");
+            $("[stroke]").removeAttr("stroke");
+            $("[style]").removeAttr("style");
+          },
+          parserOptions: { xmlMode: true }
+        })
+      )
+      // cheerio plugin create unnecessary string '&gt;', so replace it.
+      .pipe(replace("&gt;", ">"))
+      // build svg sprite
+      .pipe(svgSprite(config))
+      .pipe(gulp.dest("./app/assets/images/sprites/"))
+  );
 });
 
-gulp.task("createPngCopy", function() {
+gulp.task("copyScssSprite", function() {
   return gulp
-    .src("./temp/sprite/css/**/*.svg")
-    .pipe(svg2png())
-    .pipe(gulp.dest("./temp/sprite/css"));
-});
-
-gulp.task("copySpriteGraphic", function() {
-  return gulp
-    .src("./temp/sprite/css/**/*.{svg,png}")
-    .pipe(gulp.dest("./app/assets/images/sprites"));
-});
-
-gulp.task("copySpriteCSS", function() {
-  return gulp
-    .src("./temp/sprite/css/*.css")
-    .pipe(rename("_sprite.scss"))
-    .pipe(gulp.dest("./src/styles/modules"));
+    .src("./app/assets/images/sprites/symbol/_sprite.scss")
+    .pipe(gulp.dest("./src/styles/modules/"));
 });
 
 gulp.task("endClean", function() {
-  return del("./temp/sprite");
+  return del("./app/assets/images/sprites/symbol/_sprite.scss");
 });
 
 gulp.task(
   "icons",
-  gulp.series(
-    "beginClean",
-    "createSprite",
-    "createPngCopy",
-    "copySpriteGraphic",
-    "copySpriteCSS",
-    "endClean"
-  )
+  gulp.series("beginClean", "createSprite", "copyScssSprite", "endClean")
 );

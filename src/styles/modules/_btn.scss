@@ -1,0 +1,24 @@
+.btn {
+  background-color: $dark-brown;
+  border: none;
+  color: #ffffff;
+  text-transform: uppercase;
+  padding: 1.3rem 3.5rem;
+  font-family: "Raleway-Medium", sans-serif;
+  font-weight: 300;
+  font-size: 2rem;
+  transition: all 0.3s ease;
+  &:hover {
+    border: none;
+    outline: none;
+    background-color: darken($dark-brown, 10%);
+    cursor: pointer;
+  }
+
+  &--red {
+    background-color: $red;
+    &:hover {
+      background-color: darken($red, 10%);
+    }
+  }
+}
