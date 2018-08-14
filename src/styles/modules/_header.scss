@@ -1,12 +1,12 @@
 .header {
   background-color: $black;
   position: absolute;
-  z-index: 2;
+  z-index: 20;
   width: 100%;
   min-height: 67px;
   margin-top: 3px;
 
   &__wrapper {
-    @extend .row;
+    display: flex;
   }
 }

@@ -1,0 +1,20 @@
+.section {
+  background: #ffffff;
+
+  &__header {
+    text-align: center;
+  }
+
+  &__title {
+    font-family: $headingFont;
+    color: #262626;
+    font-size: 3rem;
+    margin-top: 9.5rem;
+    margin-bottom: 3.6rem;
+  }
+
+  &__subtitle {
+    font-family: "Lato-Bold", sans-serif;
+    margin-bottom: 9rem;
+  }
+}

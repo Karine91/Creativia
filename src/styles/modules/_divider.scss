@@ -1,0 +1,17 @@
+.divider {
+  position: relative;
+  &__hr {
+    max-width: 515px;
+  }
+
+  .icon {
+    width: 21px;
+    height: 20px;
+    fill: #262626;
+    position: absolute;
+    top: -10px;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+  }
+}

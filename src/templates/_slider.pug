@@ -1,20 +1,46 @@
 include _mixins
 
+- 
+    var slides = [
+        {
+            imageSrc: '/assets/images/slides/slide1',
+            title: {
+                txt: 'why ',
+                highlighted_txt: 'creativia ?' 
+            },
+            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et dolor justo. Phasellus eu ligula ac nisl volutpat tincidunt. Vestibulum vitae rhoncus odio Fusce sed enim erat. Mauris dictum lorem eu tortor porta placerat. Suspendisse ac vestibulum eros. Nulla mi ipsum, consequat commodo condimentum vitae,',
+            buttonBlack: 'Features',
+            buttonRed: 'Free Psd'
+        },
+        {
+            imageSrc: '/assets/images/slides/slide2',
+            title: {
+                txt: 'why ',
+                highlighted_txt: 'creativia 2?' 
+            },
+            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et dolor justo. Phasellus eu ligula ac nisl volutpat tincidunt. Vestibulum vitae rhoncus odio Fusce sed enim erat. Mauris dictum lorem eu tortor porta placerat. Suspendisse ac vestibulum eros. Nulla mi ipsum, consequat commodo condimentum vitae,',
+            buttonBlack: 'Features',
+            buttonRed: 'Free Psd'
+        },
+    ]
+
 .slider
-    .slider__img-wrapper
-        picture
-            source(media="(min-width: 1380px)", srcset="/assets/images/slides/slide1--large.jpg 1920w")
-            source(media="(min-width: 970px)", srcset="/assets/images/slides/slide1--medium.jpg 1380w")
-            source(media="(min-width: 640px)", srcset="/assets/images/slides/slide1--small.jpg 970w")
-            img.slider__image(srcset="/assets/images/slides/slide1--smaller.jpg 640w", alt="creativia")
-    .slider__txt-wrapper
-        .container
-            .slider__title why 
-                span.slider__title--highlighted creativia ?
-            p.slider__description Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et dolor justo. Phasellus eu ligula ac nisl volutpat tincidunt. Vestibulum vitae rhoncus odio Fusce sed enim erat. Mauris dictum lorem eu tortor porta placerat. Suspendisse ac vestibulum eros. Nulla mi ipsum, consequat commodo condimentum vitae,
-            .slider__buttons
-                button.btn.btn--red Features
-                button.btn Free Psd 
+    each slide, index in slides
+        .slider__content(class= index == 0 ? 'slider__content--active' : '')
+            .slider__img-wrapper
+                picture
+                    source(media="(min-width: 1380px)", srcset=slide.imageSrc + "--large.jpg 1920w")
+                    source(media="(min-width: 970px)", srcset=slide.imageSrc + "--medium.jpg 1380w")
+                    source(media="(min-width: 640px)", srcset=slide.imageSrc + "--small.jpg 970w")
+                    img.slider__image(srcset=slide.imageSrc + "--smaller.jpg 640w", alt="creativia")
+            .slider__txt-wrapper
+                .container
+                    .slider__title  #{slide.title.txt}
+                        strong #{slide.title.highlighted_txt}
+                    p.slider__description #{slide.description}
+                    .slider__buttons
+                        button.btn.btn--red #{slide.buttonBlack}
+                        button.btn  #{slide.buttonRed}
     .slider__nav
         a
             +icon('arrow-left')

@@ -1,0 +1,58 @@
+include _mixins
+section.section
+    .container
+        .section__header
+            h2.section__title about 
+                strong creativia 
+            p.section__subtitle Lorem ipsum dolor sit amet, consectetur <strong> adipiscing elit.</strong> Integer sed magna vel velit dignissim luctus eu in urna. Dapibus egestas turpis.
+        .section__content
+            .row
+                .row__col.row__col--6
+                    .about
+                        p.about__description Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et dolor justo. Phasellus eu ligula ac nisl volutpat tincidunt. Vestibulum vitae rhoncus odio Fusce sed enim erat. Mauris dictum lorem eu tortor porta placerat. Suspendisse ac vestibulum eros. Nulla mi ipsum, consequat commodo condimentum vitae,
+                        - 
+                            var accData = [
+                                {
+                                    title: 'Hwo is creativia',
+                                    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et dolor justo. Phasellus eu ligula ac nisl volutpat tincidunt. Vestibulum vitae rhoncus odio Fusce sed enim erat. Mauris dictum lorem eu tortor porta placerat. Suspendisse ac vestibulum eros.'
+                                },
+                                {
+                                    title: 'Experiences',
+                                    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et dolor justo. Phasellus eu ligula ac nisl volutpat tincidunt. Vestibulum vitae rhoncus odio Fusce sed enim erat. Mauris dictum lorem eu tortor porta placerat. Suspendisse ac vestibulum eros.'
+                                },
+                                {
+                                    title: 'Learn more',
+                                    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et dolor justo. Phasellus eu ligula ac nisl volutpat tincidunt. Vestibulum vitae rhoncus odio Fusce sed enim erat. Mauris dictum lorem eu tortor porta placerat. Suspendisse ac vestibulum eros.'
+                                }
+                            ] 
+                           
+                        .accordion
+                            each item, index in accData
+                                .accordion__item(class = index == 0 ? "active" : "")
+                                    .accordion__header
+                                        .accordion__icon-wrapper
+                                            .accordion__icon 
+                                        .accordion__title #{item.title}
+                                    .accordion__content #{item.description}
+                .row__col.row__col--6
+                    .about-pictures
+                        .hexagon-wrap.hexagon-wrap--center.hexagon-wrap--back
+                            .hexagon.hexagon--back
+                                
+                        .hexagon-wrap.hexagon-wrap--center
+                            .hexagon
+                                <img class="hexagon__image" src="assets/images/about/about1.jpg" alt="about 1"/>
+                        .hexagon-wrap.hexagon-wrap--left
+                            .hexagon
+                                <img class="hexagon__image" src="assets/images/about/about2.jpg" alt="about 2"/>
+                        .hexagon-wrap.hexagon-wrap--right
+                            .hexagon
+                                <img class="hexagon__image" src="assets/images/about/about3.jpg" alt="about 3"/>        
+            .divider
+                hr.divider__hr
+                +icon('shape')
+            .icons-group
+                .icons-group__item
+                    .icons-group__icon-wrap
+                        +icon('shape')    
+                        +icon('heart')    
