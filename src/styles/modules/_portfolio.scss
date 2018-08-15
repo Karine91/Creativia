@@ -1,0 +1,16 @@
+.portfolio {
+  margin-top: 10rem;
+  background: rgba(0, 0, 0, 0.2);
+  &__item {
+    width: 25%;
+
+    &--big {
+      width: 50%;
+    }
+
+    img {
+      width: 100%;
+      display: block;
+    }
+  }
+}

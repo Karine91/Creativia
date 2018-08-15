@@ -1,5 +1,7 @@
 .section {
   background: #ffffff;
+  padding-top: 9.5rem;
+  padding-bottom: 10rem;
 
   &__header {
     text-align: center;
@@ -7,14 +9,22 @@
 
   &__title {
     font-family: $headingFont;
-    color: #262626;
+    color: $dark-gray;
     font-size: 3rem;
-    margin-top: 9.5rem;
+    margin-top: 0;
     margin-bottom: 3.6rem;
+
+    &--white {
+      color: #fff;
+    }
   }
 
   &__subtitle {
     font-family: "Lato-Bold", sans-serif;
     margin-bottom: 9rem;
+  }
+
+  &--dark {
+    background-color: $dark-gray;
   }
 }

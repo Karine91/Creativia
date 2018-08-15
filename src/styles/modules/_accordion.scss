@@ -1,6 +1,6 @@
 .accordion {
   &__header {
-    color: $red;
+    color: $dark-gray;
     font-family: "Raleway-Medium", sans-serif;
     font-size: 2rem;
     border: 1px solid #e7e7e7;
@@ -22,7 +22,7 @@
   &__icon {
     width: 18px;
     height: 18px;
-    border: 1px solid $red;
+    border: 1px solid $dark-gray;
     border-radius: 50%;
     position: relative;
 
@@ -35,7 +35,7 @@
       display: block;
       width: 10px;
       height: 1px;
-      background-color: $red;
+      background-color: $dark-gray;
     }
 
     &:before {
@@ -47,7 +47,7 @@
       display: block;
       width: 10px;
       height: 1px;
-      background-color: $red;
+      background-color: $dark-gray;
       transition: transform 0.3s ease;
     }
   }
@@ -63,8 +63,21 @@
   }
 
   &__item.active {
+    .accordion__header {
+      color: $red;
+    }
     .accordion__icon:before {
       transform: translate(-50%, -50%) rotate(0deg);
+    }
+
+    .accordion__icon {
+      border-color: $red;
+      &:after {
+        background-color: $red;
+      }
+      &:before {
+        background-color: $red;
+      }
     }
 
     .accordion__content {

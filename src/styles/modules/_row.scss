@@ -2,12 +2,16 @@
   display: flex;
   margin-left: -1.5rem;
   margin-right: -1.5rem;
+  flex-wrap: wrap;
 
   &__col {
     padding: 0 1.5rem;
+    width: 100%;
 
-    &--6 {
-      width: 50%;
+    @include tablets {
+      &--md-6 {
+        width: 50%;
+      }
     }
   }
 }

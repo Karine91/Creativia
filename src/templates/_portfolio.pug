@@ -1,0 +1,23 @@
+include _mixins
+section.section.section--dark
+    .container
+        .section__header
+            h2.section__title.section__title--white portfolio
+            ul.filters
+                - var filters = [{name: 'all', label: 'all'}, {label: 'illustration', name: 'illustration' }, {name: 'digital_art', label: 'digital art'}, {name: 'web_design', label: 'web design'}]
+                each item in filters
+                    li.filters__item
+                        a.filters__link(href="#" data-filter=item.name) #{item.label}
+        .section__content
+            .portfolio
+                .portfolio__item(data-filter-value="illustration")
+                    img(src="assets/images/portfolio/portfolio.jpg", alt="")
+                .portfolio__item.portfolio__item--big(data-filter-value="illustration")
+                    img(src="assets/images/portfolio/portfolio1.jpg", alt="")
+                .portfolio__item.portfolio__item--big(data-filter-value="web_design")
+                    img(src="assets/images/portfolio/portfolio2.jpg", alt="")
+                .portfolio__item(data-filter-value="web_design")
+                    img(src="assets/images/portfolio/portfolio3.jpg", alt="") 
+                .portfolio__item(data-filter-value="illustration")
+                    img(src="assets/images/portfolio/portfolio4.jpg", alt="")               
+

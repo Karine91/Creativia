@@ -74,8 +74,17 @@
   }
 
   &__buttons {
-    .btn + .btn {
-      margin-left: $m-size;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    .btn {
+      margin-bottom: $m-size;
+    }
+    @include small {
+      flex-direction: row;
+      .btn + .btn {
+        margin-left: $m-size;
+      }
     }
   }
 

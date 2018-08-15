@@ -1,0 +1,27 @@
+.filters {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+
+  &__item + &__item {
+    margin-left: 2rem;
+  }
+
+  &__link {
+    color: #a4a4a4;
+    text-transform: uppercase;
+    font-size: 1.6rem;
+    font-family: "Lato-Bold", sans-serif;
+    transition: color 0.3s ease;
+
+    &--active {
+      color: $red;
+    }
+
+    &:hover {
+      color: $red;
+    }
+  }
+}
