@@ -16,12 +16,16 @@
     font-family: "Lato-Bold", sans-serif;
     transition: color 0.3s ease;
 
-    &--active {
-      color: $red;
-    }
-
     &:hover {
       color: $red;
+    }
+  }
+
+  &__item {
+    &--active {
+      .filters__link {
+        color: $red;
+      }
     }
   }
 }

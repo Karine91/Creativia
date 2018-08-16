@@ -6,6 +6,7 @@ class Portfolio {
     this.portfolioWrapSelector = ".portfolio";
     this.portfolioItemSelector = ".portfolio__item";
     this.$filters = $(".filters__link");
+    this.$filtersItems = $(".filters__item");
     this.initializeIsotope();
     this.events();
   }
@@ -19,6 +20,10 @@ class Portfolio {
   onFilterClick(e) {
     e.preventDefault();
     let filterValue = $(e.target).data("filter");
+    this.$filtersItems.removeClass("filters__item--active");
+    $(e.target)
+      .closest("li")
+      .addClass("filters__item--active");
     this.grid.arrange({
       filter: elem => this.filterFunction(elem, filterValue)
     });
