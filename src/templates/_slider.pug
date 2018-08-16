@@ -22,6 +22,46 @@ include _mixins
             buttonBlack: 'Features',
             buttonRed: 'Free Psd'
         },
+        {
+            imageSrc: '/assets/images/slides/slide3',
+            title: {
+                txt: 'why ',
+                highlighted_txt: 'not?' 
+            },
+            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et dolor justo. Phasellus eu ligula ac nisl volutpat tincidunt. Vestibulum vitae rhoncus odio Fusce sed enim erat. Mauris dictum lorem eu tortor porta placerat. Suspendisse ac vestibulum eros. Nulla mi ipsum, consequat commodo condimentum vitae,',
+            buttonBlack: 'Features',
+            buttonRed: 'Free Psd'
+        },
+        {
+            imageSrc: '/assets/images/slides/slide4',
+            title: {
+                txt: 'why ',
+                highlighted_txt: 'not 4?' 
+            },
+            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et dolor justo. Phasellus eu ligula ac nisl volutpat tincidunt. Vestibulum vitae rhoncus odio Fusce sed enim erat. Mauris dictum lorem eu tortor porta placerat. Suspendisse ac vestibulum eros. Nulla mi ipsum, consequat commodo condimentum vitae,',
+            buttonBlack: 'Features',
+            buttonRed: 'Free Psd'
+        },
+        {
+            imageSrc: '/assets/images/slides/slide5',
+            title: {
+                txt: 'why ',
+                highlighted_txt: 'not 5?' 
+            },
+            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et dolor justo. Phasellus eu ligula ac nisl volutpat tincidunt. Vestibulum vitae rhoncus odio Fusce sed enim erat. Mauris dictum lorem eu tortor porta placerat. Suspendisse ac vestibulum eros. Nulla mi ipsum, consequat commodo condimentum vitae,',
+            buttonBlack: 'Features',
+            buttonRed: 'Free Psd'
+        },
+        {
+            imageSrc: '/assets/images/slides/slide6',
+            title: {
+                txt: 'why ',
+                highlighted_txt: 'not 6?' 
+            },
+            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et dolor justo. Phasellus eu ligula ac nisl volutpat tincidunt. Vestibulum vitae rhoncus odio Fusce sed enim erat. Mauris dictum lorem eu tortor porta placerat. Suspendisse ac vestibulum eros. Nulla mi ipsum, consequat commodo condimentum vitae,',
+            buttonBlack: 'Features',
+            buttonRed: 'Free Psd'
+        },
     ]
 
 .slider
@@ -42,7 +82,7 @@ include _mixins
                         button.btn.btn--red #{slide.buttonBlack}
                         button.btn  #{slide.buttonRed}
     .slider__nav
-        a
+        a(href='#').slider__nav-item.slider__nav-item--left
             +icon('arrow-left')
-        a
+        a(href='#').slider__nav-item.slider__nav-item--right
             +icon('arrow-right')

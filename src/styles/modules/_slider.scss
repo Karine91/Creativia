@@ -9,14 +9,11 @@
     position: absolute;
     width: 100%;
     height: 100%;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
+    display: none;
+    transition: all 0.6s ease;
 
     &--active {
-      opacity: 1;
-      visibility: visible;
-      z-index: 10;
+      display: block;
     }
   }
 
@@ -51,6 +48,7 @@
     width: 100%;
     height: 100%;
     color: #fff;
+    opacity: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -88,27 +86,124 @@
     }
   }
 
+  &__content--active {
+    .slider__txt-wrapper {
+      animation: fadeIn 0.6s ease-in forwards;
+    }
+  }
+
+  &__animation {
+    position: relative;
+    overflow: hidden;
+    &:after {
+      position: absolute;
+      top: 0;
+      left: 0;
+      content: "";
+      border-top: 348.5px solid transparent;
+      border-bottom: 348.5px solid rgba($dark-brown, 0.5);
+      border-right: 50vw solid rgba($dark-brown, 0.5);
+      border-left: 49vw solid transparent;
+      z-index: 15;
+      transform: translateY(100%);
+    }
+    &:before {
+      position: absolute;
+      top: 0;
+      left: 0;
+      content: "";
+      border-bottom: 348.5px solid transparent;
+      border-top: 348.5px solid rgba(#000, 0.5);
+      border-left: 50vw solid rgba(#000, 0.5);
+      border-right: 49vw solid transparent;
+      z-index: 15;
+      transform: translateY(-100%);
+    }
+
+    &--close {
+      &:after {
+        animation: slideCloseRight 0.8s ease forwards;
+      }
+      &:before {
+        animation: slideCloseLeft 0.8s ease forwards;
+      }
+    }
+
+    &--open {
+      &:after {
+        animation: slideOpenRight 0.8s ease forwards;
+      }
+      &:before {
+        animation: slideOpenLeft 0.8s ease forwards;
+      }
+    }
+  }
+
   &__nav {
-    .icon {
+    &-item {
       display: block;
       position: absolute;
       top: 50%;
-      color: #a4a4a4;
-      transition: all 0.3s ease;
+
       z-index: 11;
 
-      &:hover {
-        cursor: pointer;
-        color: $red;
-      }
-
-      &--arrow-left {
+      &--left {
         left: 3.5rem;
       }
 
-      &--arrow-right {
+      &--right {
         right: 3.5rem;
       }
     }
+    .icon {
+      color: #a4a4a4;
+      transition: all 0.3s ease;
+    }
+
+    &-item:hover .icon {
+      color: $red;
+    }
+  }
+}
+
+@keyframes fadeIn {
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes slideCloseRight {
+  0% {
+    transform: translateY(100%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideOpenRight {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes slideCloseLeft {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideOpenLeft {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-100%);
   }
 }
