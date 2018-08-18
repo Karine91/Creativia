@@ -1,19 +1,106 @@
 .features {
   display: flex;
   justify-content: center;
+  flex-direction: column;
+
+  @include atWidth(970px) {
+    flex-direction: row;
+  }
 }
 
-.features-image {
+.features__image {
   position: relative;
+  order: -1;
+  margin-bottom: 4rem;
+
+  @include atWidth(970px) {
+    flex-direction: row;
+    margin-bottom: 0;
+    order: 0;
+  }
+
   img {
-    width: 100%;
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
   }
 
   button {
     position: absolute;
-    bottom: 75px;
+    bottom: 45px;
     left: 50%;
     transform: translateX(-50%);
     background-color: #393939;
+
+    @include atWidth(400px) {
+      bottom: 75px;
+    }
+  }
+}
+
+.features__icon {
+  width: 37px;
+  height: 32px;
+  position: relative;
+  margin-right: 2rem;
+  .icon {
+    transition: all 0.3s ease;
+  }
+  .icon--shape {
+    width: 100%;
+    height: 100%;
+    fill: #e7e7e7;
+  }
+  .icon--check-solid {
+    width: 13px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    fill: $dark-gray;
+  }
+}
+
+.features-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  @include atWidth(1140px) {
+    margin: 60px 0 0;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border: 1px solid #e7e7e7;
+    color: $dark-gray;
+    font-family: "Raleway-Medium", sans-serif;
+    text-transform: uppercase;
+    background: white;
+    transition: all 0.3s ease;
+    font-size: 1.5rem;
+    white-space: nowrap;
+    margin-top: 23px;
+    cursor: pointer;
+
+    @include atWidth(1140px) {
+      font-size: 2rem;
+      padding: 1rem 2rem;
+    }
+
+    &:hover {
+      background: $red;
+      color: white;
+      .icon--shape {
+        fill: white;
+      }
+      .icon--check-solid {
+        fill: $red;
+      }
+    }
   }
 }

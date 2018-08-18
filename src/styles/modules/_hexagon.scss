@@ -92,7 +92,7 @@
   }
 
   50% {
-    transform: perspective(700px) translate3d(-30%, 0, -100px) rotate(-150deg)
+    transform: perspective(700px) translate3d(-50%, 0, -300px) rotate(-150deg)
       skewY(30deg);
   }
 
@@ -111,7 +111,7 @@
   }
 
   50% {
-    transform: perspective(700px) translate3d(30%, 0, -100px) rotate(-150deg)
+    transform: perspective(700px) translate3d(50%, 0, -300px) rotate(-150deg)
       skewY(30deg);
   }
 
@@ -124,7 +124,7 @@
 
 @keyframes hexagoneSlideMoveRightToLeft {
   0% {
-    transform: perspective(700px) translate3d(20%, 0, 0) rotate(-150deg)
+    transform: perspective(700px) translate3d(20%, 0, -600px) rotate(-150deg)
       skewY(30deg);
     z-index: 0;
   }

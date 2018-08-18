@@ -7,6 +7,22 @@ section.section
             p.section__subtitle Lorem ipsum dolor sit amet, consectetur <strong> adipiscing elit.</strong> Integer sed magna vel velit dignissim luctus eu in urna. Dapibus egestas turpis.
         .section__content
             .features
-                .features-image
+                ul.features-list.features-list--left
+                        - var featuresArr = ['Unlimited Color Options', 'Outstanding Support', 'Retina Ready', 'Unlimited Color Options', 'Outstanding Support', 'Retina Ready'];
+                        each item in featuresArr.slice(0, 3)
+                            li.features-list__item
+                                .features__icon
+                                    +icon('shape')    
+                                    +icon('check-solid')
+                                | #{item} 
+                .features__image
                     img(src="assets/images/features.png")
                     button.btn  Free PSD
+                
+                ul.features-list.features-list--right
+                    each item in featuresArr.slice(3)
+                        li.features-list__item
+                            .features__icon
+                                +icon('shape')    
+                                +icon('check-solid')
+                            | #{item} 

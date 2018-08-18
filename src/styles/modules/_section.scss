@@ -1,11 +1,19 @@
 .section {
   background: #ffffff;
-  padding-top: 9.5rem;
-  padding-bottom: 10rem;
+  padding-top: 4.5rem;
+  padding-bottom: 5rem;
+
+  @include atWidth(500px) {
+    padding-top: 9.5rem;
+    padding-bottom: 10rem;
+  }
 
   &__header {
     text-align: center;
-    padding-bottom: 9rem;
+    padding-bottom: 4rem;
+    @include atWidth(500px) {
+      padding-bottom: 9rem;
+    }
   }
 
   &__content {

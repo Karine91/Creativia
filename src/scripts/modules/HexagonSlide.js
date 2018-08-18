@@ -16,8 +16,8 @@ class HexagonSlider {
   initialize() {
     this.timerId = setInterval(() => {
       this.currentSlide = this.getSlide(this.currentSlide + 1);
-      let leftSlideIndex = this.getSlide(this.currentSlide - 1);
-      let rightSlideIndex = this.getSlide(this.currentSlide + 1);
+      let leftSlideIndex = this.getSlide(this.currentSlide + 1);
+      let rightSlideIndex = this.getSlide(this.currentSlide - 1);
       //Remove active item class
       this.$hexagonItemWrap.removeClass(this.hexagonActiveClass);
 

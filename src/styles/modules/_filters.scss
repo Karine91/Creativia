@@ -4,9 +4,16 @@
   padding: 0;
   display: flex;
   justify-content: center;
+  flex-direction: column;
 
-  &__item + &__item {
-    margin-left: 2rem;
+  @include atWidth(460px) {
+    flex-direction: row;
+  }
+  @include atWidth(460px) {
+    &__item + &__item {
+      flex-direction: row;
+      margin-left: 2rem;
+    }
   }
 
   &__link {
@@ -22,6 +29,12 @@
   }
 
   &__item {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    @include atWidth(460px) {
+      padding: 0;
+      margin-bottom: 0;
+    }
     &--active {
       .filters__link {
         color: $red;
