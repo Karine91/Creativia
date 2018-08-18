@@ -2,25 +2,32 @@
   display: flex;
   width: 62.5%;
   padding-bottom: 72.17%;
-  transform: perspective(500px) translateY(-50%) translate3d(0, 0, 0)
-    rotate(-150deg) skewY(30deg);
+  transform: perspective(700px) translate3d(0, 0, 0) rotate(-150deg)
+    skewY(30deg);
   overflow: hidden;
   visibility: hidden;
-  margin: 0 auto;
+  margin: auto;
   position: absolute;
   height: 0;
-  top: 50%;
+  right: 0;
+  left: 0;
+  top: 0;
+  bottom: 0;
   &--left {
+    transform: perspective(700px) translate3d(-20%, 0, 0) rotate(-150deg)
+      skewY(30deg);
     animation: hexagoneSlideMoveRightToLeft ease 0.7s forwards;
   }
 
   &--right {
+    transform: perspective(700px) translate3d(20%, 0, 0) rotate(-150deg)
+      skewY(30deg);
     animation: hexagoneSlideMoveCenterToRight ease 0.7s forwards;
   }
 
   &--center {
     animation: hexagoneSlideMoveLeftToCenter ease 0.7s forwards;
-    right: 0;
+
     z-index: 1;
   }
 
@@ -36,8 +43,8 @@
 }
 .hexagon-outer-wrap.hexagon-outer-wrap--active > .hexagon-wrap {
   display: block;
-  transform: perspective(500px) translateY(-50%) rotate(-150deg) skewY(30deg)
-    scale(1.1) translate3d(0, 0, 1em);
+  transform: perspective(700px) translate3d(0, 0, 2em) rotate(-150deg)
+    skewY(30deg);
 }
 
 .hexagon {
@@ -79,52 +86,52 @@
 
 @keyframes hexagoneSlideMoveLeftToCenter {
   0% {
-    left: 5%;
-    transform: perspective(700px) translateY(-50%) rotate(-150deg) skewY(30deg)
-      translate3d(0, 0, 0);
+    transform: perspective(700px) translate3d(-20%, 0, 0) rotate(-150deg)
+      skewY(30deg);
     z-index: 1;
   }
 
   50% {
-    left: -30%;
+    transform: perspective(700px) translate3d(-30%, 0, -100px) rotate(-150deg)
+      skewY(30deg);
   }
 
   100% {
-    left: 0;
-    transform: perspective(700px) translateY(-50%) rotate(-150deg) skewY(30deg)
-      translate3d(0, -10px, 2em);
+    transform: perspective(700px) translate3d(0, 0, 2em) rotate(-150deg)
+      skewY(30deg);
     z-index: 2;
   }
 }
 
 @keyframes hexagoneSlideMoveCenterToRight {
   0% {
-    left: 0;
-    transform: perspective(700px) translateY(-50%) rotate(-150deg) skewY(30deg)
-      translate3d(0, -10px, 2em);
+    transform: perspective(700px) translate3d(0, 0, 2em) rotate(-150deg)
+      skewY(30deg);
     z-index: 2;
   }
 
   50% {
-    left: 62%;
+    transform: perspective(700px) translate3d(30%, 0, -100px) rotate(-150deg)
+      skewY(30deg);
   }
 
   100% {
-    left: 30%;
-    transform: perspective(700px) translateY(-50%) rotate(-150deg) skewY(30deg)
-      translate3d(0, 0, 0);
+    transform: perspective(700px) translate3d(20%, 0, 0) rotate(-150deg)
+      skewY(30deg);
     z-index: 1;
   }
 }
 
 @keyframes hexagoneSlideMoveRightToLeft {
   0% {
-    left: 30%;
+    transform: perspective(700px) translate3d(20%, 0, 0) rotate(-150deg)
+      skewY(30deg);
     z-index: 0;
   }
 
   100% {
-    left: 5%;
+    transform: perspective(700px) translate3d(-20%, 0, 0) rotate(-150deg)
+      skewY(30deg);
     z-index: 0;
   }
 }
