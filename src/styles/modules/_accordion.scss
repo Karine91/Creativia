@@ -62,7 +62,7 @@
     }
   }
 
-  &__item.active {
+  &__item.accordion__item--active {
     .accordion__header {
       color: $red;
     }

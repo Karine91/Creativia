@@ -1,8 +1,8 @@
 .slider {
-  height: 697px;
+  height: 600px;
   position: relative;
   @include large {
-    height: 697px;
+    height: 600px;
   }
 
   &__content {
@@ -100,8 +100,8 @@
       top: 0;
       left: 0;
       content: "";
-      border-top: 348.5px solid transparent;
-      border-bottom: 348.5px solid rgba($dark-brown, 0.5);
+      border-top: 300px solid transparent;
+      border-bottom: 300px solid rgba($dark-brown, 0.5);
       border-right: 50vw solid rgba($dark-brown, 0.5);
       border-left: 49vw solid transparent;
       z-index: 15;
@@ -112,8 +112,8 @@
       top: 0;
       left: 0;
       content: "";
-      border-bottom: 348.5px solid transparent;
-      border-top: 348.5px solid rgba(#000, 0.5);
+      border-bottom: 300px solid transparent;
+      border-top: 300px solid rgba(#000, 0.5);
       border-left: 50vw solid rgba(#000, 0.5);
       border-right: 49vw solid transparent;
       z-index: 15;

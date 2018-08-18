@@ -2,7 +2,8 @@
   display: flex;
   width: 62.5%;
   padding-bottom: 72.17%;
-  transform: translateY(-50%) rotate(-150deg) skewY(30deg);
+  transform: perspective(500px) translateY(-50%) translate3d(0, 0, 0)
+    rotate(-150deg) skewY(30deg);
   overflow: hidden;
   visibility: hidden;
   margin: 0 auto;
@@ -10,25 +11,33 @@
   height: 0;
   top: 50%;
   &--left {
-    left: 25px;
+    animation: hexagoneSlideMoveRightToLeft ease 0.7s forwards;
   }
 
   &--right {
-    right: 25px;
+    animation: hexagoneSlideMoveCenterToRight ease 0.7s forwards;
   }
 
   &--center {
-    width: 70%;
-    padding-bottom: 80.83%;
-    left: 0;
+    animation: hexagoneSlideMoveLeftToCenter ease 0.7s forwards;
     right: 0;
     z-index: 1;
   }
 
   &--back {
-    width: calc(70% + 10px);
-    padding-bottom: calc(80.83% + 11.54px);
+    width: calc(62.5% + 10px);
+    padding-bottom: calc(72.17% + 11.54px);
   }
+}
+.hexagon-outer-wrap {
+  .hexagon-wrap--back {
+    display: none;
+  }
+}
+.hexagon-outer-wrap.hexagon-outer-wrap--active > .hexagon-wrap {
+  display: block;
+  transform: perspective(500px) translateY(-50%) rotate(-150deg) skewY(30deg)
+    scale(1.1) translate3d(0, 0, 1em);
 }
 
 .hexagon {
@@ -64,6 +73,58 @@
   }
 }
 
-.hexagon-wrap--center .hexagon:after {
+.hexagon-outer-wrap.hexagon-outer-wrap--active .hexagon:after {
   display: none;
+}
+
+@keyframes hexagoneSlideMoveLeftToCenter {
+  0% {
+    left: 5%;
+    transform: perspective(700px) translateY(-50%) rotate(-150deg) skewY(30deg)
+      translate3d(0, 0, 0);
+    z-index: 1;
+  }
+
+  50% {
+    left: -30%;
+  }
+
+  100% {
+    left: 0;
+    transform: perspective(700px) translateY(-50%) rotate(-150deg) skewY(30deg)
+      translate3d(0, -10px, 2em);
+    z-index: 2;
+  }
+}
+
+@keyframes hexagoneSlideMoveCenterToRight {
+  0% {
+    left: 0;
+    transform: perspective(700px) translateY(-50%) rotate(-150deg) skewY(30deg)
+      translate3d(0, -10px, 2em);
+    z-index: 2;
+  }
+
+  50% {
+    left: 62%;
+  }
+
+  100% {
+    left: 30%;
+    transform: perspective(700px) translateY(-50%) rotate(-150deg) skewY(30deg)
+      translate3d(0, 0, 0);
+    z-index: 1;
+  }
+}
+
+@keyframes hexagoneSlideMoveRightToLeft {
+  0% {
+    left: 30%;
+    z-index: 0;
+  }
+
+  100% {
+    left: 5%;
+    z-index: 0;
+  }
 }

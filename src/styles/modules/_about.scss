@@ -16,6 +16,7 @@
   height: 430px;
   max-width: 600px;
   position: relative;
+  overflow: hidden;
   @include tablets {
     margin-bottom: 10rem;
   }

@@ -1,17 +1,30 @@
 .divider {
   position: relative;
   &__hr {
+    border-color: $dark-gray;
     max-width: 515px;
+    border-width: 1px;
   }
 
   .icon {
     width: 21px;
     height: 20px;
-    fill: #262626;
+    fill: $dark-gray;
     position: absolute;
     top: -10px;
     left: 0;
     right: 0;
     margin: 0 auto;
+  }
+
+  &--red {
+    margin-top: -9px;
+    .divider__hr {
+      border-color: $red;
+      border-width: 1px;
+    }
+    .icon {
+      fill: $red;
+    }
   }
 }

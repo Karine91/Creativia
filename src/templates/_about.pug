@@ -28,7 +28,7 @@ section.section
                            
                         .accordion
                             each item, index in accData
-                                .accordion__item(class = index == 0 ? "active" : "")
+                                .accordion__item(class = index == 0 ? "accordion__item--active" : "")
                                     .accordion__header
                                         .accordion__icon-wrapper
                                             .accordion__icon 
@@ -36,18 +36,25 @@ section.section
                                     .accordion__content #{item.description}
                 .row__col.row__col--md-6
                     .about-pictures
-                        .hexagon-wrap.hexagon-wrap--center.hexagon-wrap--back
-                            .hexagon.hexagon--back
-                                
-                        .hexagon-wrap.hexagon-wrap--center
-                            .hexagon
-                                <img class="hexagon__image" src="assets/images/about/about1.jpg" alt="about 1"/>
-                        .hexagon-wrap.hexagon-wrap--left
-                            .hexagon
-                                <img class="hexagon__image" src="assets/images/about/about2.jpg" alt="about 2"/>
-                        .hexagon-wrap.hexagon-wrap--right
-                            .hexagon
-                                <img class="hexagon__image" src="assets/images/about/about3.jpg" alt="about 3"/>        
+                        .hexagon-outer-wrap.hexagon-outer-wrap--active
+                            .hexagon-wrap.hexagon-wrap--center.hexagon-wrap--back
+                                .hexagon.hexagon--back
+                                    
+                            .hexagon-wrap.hexagon-wrap--front.hexagon-wrap--center
+                                .hexagon
+                                    <img class="hexagon__image" src="assets/images/about/about1.jpg" alt="about 1"/>
+                        .hexagon-outer-wrap
+                            .hexagon-wrap.hexagon-wrap--center.hexagon-wrap--back
+                                .hexagon.hexagon--back            
+                            .hexagon-wrap.hexagon-wrap--front.hexagon-wrap--left
+                                .hexagon
+                                    <img class="hexagon__image" src="assets/images/about/about2.jpg" alt="about 2"/>
+                        .hexagon-outer-wrap
+                            .hexagon-wrap.hexagon-wrap--center.hexagon-wrap--back
+                                .hexagon.hexagon--back            
+                            .hexagon-wrap.hexagon-wrap--front.hexagon-wrap--right
+                                .hexagon
+                                    <img class="hexagon__image" src="assets/images/about/about3.jpg" alt="about 3"/>        
             .divider
                 hr.divider__hr
                 +icon('shape')
