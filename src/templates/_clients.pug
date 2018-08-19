@@ -1,0 +1,44 @@
+section.section.section--clients.section--overlay
+    .container
+        .section__header
+            h2.section__title.section__title--white our 
+                strong clients
+            p.section__subtitle.section__subtitle--gray Lorem ipsum dolor sit amet, consectetur <strong> adipiscing elit.</strong> Integer sed magna vel velit dignissim luctus eu in urna. Dapibus egestas turpis.
+        .section__content
+            .row
+                .row__col.row__col--md-6
+                    .testimonials
+                        h2.testimonials__title happy clients say
+                        -
+                            var testimonials = [
+                                {
+                                    text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer sed magna vel velit dignissim luctus eu in urna. Dapibus egestas turpis.',
+                                    author: 'amr srour 1',
+                                    img: "assets/images/testimonials/testimonials1.jpg"
+                                },
+                                {
+                                    text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer sed magna vel velit dignissim luctus eu in urna. Dapibus egestas turpis.',
+                                    author: 'amr srour 2',
+                                    img: "assets/images/testimonials/testimonials1.jpg"
+                                },{
+                                    text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer sed magna vel velit dignissim luctus eu in urna. Dapibus egestas turpis.',
+                                    author: 'amr srour 3',
+                                    img: "assets/images/testimonials/testimonials1.jpg"
+                                },
+                                {
+                                    text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer sed magna vel velit dignissim luctus eu in urna. Dapibus egestas turpis.',
+                                    author: 'amr srour 4',
+                                    img: "assets/images/testimonials/testimonials1.jpg"
+                                },
+                            ]
+                        .owl-carousel    
+                            each item, index in testimonials    
+                                .testimonials__item(class=index === 0 ? 'testimonials__item--active' : '')
+                                    p.testimonials__text #{item.text}
+                                    .testimonials__image-wrap
+                                        .hexagon-wrap
+                                            .hexagon
+                                                img.hexagon__image(src=item.img, alt="")
+                                    .testimonials__author #{item.author}
+                        .testimonials-nav
+                .row__col.row__col--md-6

@@ -37,14 +37,14 @@
   }
 }
 .hexagon-outer-wrap {
+  height: 100%;
   .hexagon-wrap--back {
     display: none;
   }
 }
 .hexagon-outer-wrap.hexagon-outer-wrap--active > .hexagon-wrap {
   display: block;
-  transform: perspective(700px) translate3d(0, 0, 2em) rotate(-150deg)
-    skewY(30deg);
+  transform: translate3d(0, 0, 2em) rotate(-150deg) skewY(30deg);
 }
 
 .hexagon {
@@ -86,52 +86,44 @@
 
 @keyframes hexagoneSlideMoveLeftToCenter {
   0% {
-    transform: perspective(700px) translate3d(-20%, 0, 0) rotate(-150deg)
-      skewY(30deg);
+    transform: translate3d(-20%, 0, 0) rotate(-150deg) skewY(30deg);
     z-index: 1;
   }
 
   50% {
-    transform: perspective(700px) translate3d(-50%, 0, -300px) rotate(-150deg)
-      skewY(30deg);
+    transform: translate3d(-50%, 0, -300px) rotate(-150deg) skewY(30deg);
   }
 
   100% {
-    transform: perspective(700px) translate3d(0, 0, 2em) rotate(-150deg)
-      skewY(30deg);
+    transform: translate3d(0, 0, 2em) rotate(-150deg) skewY(30deg);
     z-index: 2;
   }
 }
 
 @keyframes hexagoneSlideMoveCenterToRight {
   0% {
-    transform: perspective(700px) translate3d(0, 0, 2em) rotate(-150deg)
-      skewY(30deg);
+    transform: translate3d(0, 0, 2em) rotate(-150deg) skewY(30deg);
     z-index: 2;
   }
 
   50% {
-    transform: perspective(700px) translate3d(50%, 0, -300px) rotate(-150deg)
-      skewY(30deg);
+    transform: translate3d(50%, 0, -300px) rotate(-150deg) skewY(30deg);
   }
 
   100% {
-    transform: perspective(700px) translate3d(20%, 0, 0) rotate(-150deg)
-      skewY(30deg);
+    transform: translate3d(20%, 0, 0) rotate(-150deg) skewY(30deg);
     z-index: 1;
   }
 }
 
 @keyframes hexagoneSlideMoveRightToLeft {
   0% {
-    transform: perspective(700px) translate3d(20%, 0, -600px) rotate(-150deg)
-      skewY(30deg);
+    transform: translate3d(20%, 0, -600px) rotate(-150deg) skewY(30deg);
     z-index: 0;
   }
 
   100% {
-    transform: perspective(700px) translate3d(-20%, 0, 0) rotate(-150deg)
-      skewY(30deg);
+    transform: translate3d(-20%, 0, 0) rotate(-150deg) skewY(30deg);
     z-index: 0;
   }
 }

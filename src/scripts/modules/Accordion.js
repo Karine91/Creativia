@@ -1,5 +1,3 @@
-import $ from "jquery";
-
 class Accordion {
   constructor() {
     this.$accordion = $(".accordion");

@@ -1,5 +1,3 @@
-import $ from "jquery";
-
 class HexagonSlider {
   constructor() {
     this.hexagonCenterClass = "hexagon-wrap--center";

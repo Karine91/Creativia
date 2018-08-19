@@ -35,9 +35,35 @@
   &__subtitle {
     font-family: "Lato-Bold", sans-serif;
     margin-bottom: 0;
+    &--gray {
+      color: #a4a4a4;
+    }
   }
 
   &--dark {
     background-color: $dark-gray;
+  }
+
+  &--clients {
+    background-image: url("../images/clients-bg.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+  }
+
+  &--overlay {
+    position: relative;
+    &:before {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      content: "";
+      background-color: rgba(black, 0.9);
+    }
+
+    .container {
+      position: relative;
+    }
   }
 }

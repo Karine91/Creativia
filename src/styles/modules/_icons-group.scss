@@ -46,12 +46,8 @@
 
   &__title {
     margin: 3.5rem 0 3rem;
+    @extend .heading-medium;
     text-align: center;
-    text-transform: uppercase;
-    font-family: "Raleway-Medium", sans-serif;
-    font-size: 2rem;
-    color: $dark-gray;
-    font-weight: 600;
   }
 
   &__description {

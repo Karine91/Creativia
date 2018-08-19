@@ -1,0 +1,58 @@
+.testimonials {
+  text-align: center;
+  overflow: hidden;
+  &__item {
+  }
+
+  &__image-wrap {
+    position: relative;
+    width: 93px;
+    height: 58px;
+    margin: 0 auto;
+    .hexagon:after {
+      display: none;
+    }
+  }
+  &__title {
+    @extend .heading-medium;
+    color: white;
+    margin: 0;
+  }
+
+  &__text {
+    color: #a4a4a4;
+    margin: 5rem 0;
+  }
+
+  &__author {
+    color: $red;
+    font-family: "Raleway-Bold", sans-serif;
+    text-transform: uppercase;
+    margin: 1.7rem 0 3rem;
+  }
+
+  &-nav {
+    display: flex;
+    justify-content: center;
+    .owl-dot {
+      width: 8px;
+      height: 8px;
+      padding: 0;
+      border: none;
+      background-color: #e0e0e0;
+      cursor: pointer;
+
+      &.active {
+        background-color: $red;
+      }
+    }
+
+    .owl-dot + .owl-dot {
+      margin-left: 5px;
+    }
+  }
+}
+
+.owl-carousel .owl-item img {
+  width: auto;
+}

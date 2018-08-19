@@ -1,4 +1,3 @@
-import $ from "jquery";
 import waypoints from "waypoints/lib/noframework.waypoints";
 
 class RevealOnScroll {
