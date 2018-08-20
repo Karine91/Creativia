@@ -1,8 +1,6 @@
 .about {
   margin-bottom: 5rem;
-  @include tablets {
-    margin-bottom: 10rem;
-  }
+
   &__description {
     margin-top: 0;
     margin-bottom: 2.5rem;
@@ -17,11 +15,15 @@
   position: relative;
   overflow: hidden;
   perspective: 500px;
-  @include tablets {
-    margin-bottom: 10rem;
-  }
 
   @include atWidth(500px) {
     height: 430px;
+  }
+}
+
+@include atWidth(500px) {
+  .about-pictures,
+  .about {
+    margin-bottom: 0;
   }
 }

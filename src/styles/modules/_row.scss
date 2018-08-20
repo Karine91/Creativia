@@ -7,10 +7,22 @@
   &__col {
     padding: 0 1.5rem;
     width: 100%;
+    display: flex;
+    flex-direction: column;
+
+    @include atWidth(800px) {
+      &--s-6 {
+        width: 50%;
+      }
+    }
 
     @include tablets {
       &--md-6 {
         width: 50%;
+      }
+
+      &--md-3 {
+        width: 25%;
       }
     }
   }

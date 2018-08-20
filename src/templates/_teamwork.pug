@@ -1,0 +1,49 @@
+include _mixins
+section.section
+    .container
+        .section__header
+            h2.section__title our 
+                strong teamwork
+            p.section__subtitle Lorem ipsum dolor sit amet, consectetur <strong> adipiscing elit.</strong> Integer sed magna vel velit dignissim luctus eu in urna. Dapibus egestas turpis.
+        .section__content
+            .row
+                - 
+                    var employees = [
+                        {
+                           name: 'Bruce Wayne',
+                           job: 'Webdesigner' 
+                        },
+                        {
+                           name: 'Amr Srour',
+                           job: 'Webdesigner' 
+                        },
+                        {
+                           name: 'SARAH DOE',
+                           job: 'Webdesigner' 
+                        },
+                        {
+                           name: 'johan de',
+                           job: 'Webdesigner' 
+                        }
+                    ]
+                each item, index in employees    
+                    .row__col.row__col--s-6.row__col--md-3
+                        .employee
+                            .employee__picture
+                                img(src=`assets/images/workers/employee${index +1}.jpg`)
+                                .employee__picture-overlay
+                                    ul.socials
+                                        each icon in ['facebook', 'twitter', 'google-plus']
+                                            li.socials__item
+                                                a(href="#").socials__link
+                                                    .socials__icon
+                                                        +icon('shape')
+                                                        +icon(icon)
+                            .employee__info
+                                .employee__name #{item.name}
+                                .employee__job  #{item.job}
+        .divider
+                hr.divider__hr
+                +icon('shape')
+
+

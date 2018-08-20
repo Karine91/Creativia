@@ -1,7 +1,10 @@
 .testimonials {
   text-align: center;
   overflow: hidden;
-  &__item {
+  margin-bottom: 5rem;
+
+  @include tablets {
+    margin-bottom: 0;
   }
 
   &__image-wrap {
@@ -44,6 +47,10 @@
 
       &.active {
         background-color: $red;
+      }
+
+      &:focus {
+        outline: none;
       }
     }
 

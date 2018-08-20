@@ -5,6 +5,26 @@ import Accordion from "./modules/Accordion";
 import HexagonSlider from "./modules/HexagonSlide";
 import RevealOnScroll from "./modules/RevealOnScroll";
 import SliderWithBullets from "./modules/SliderWithBullets";
+import SkillsSet from "./modules/Skills";
+
+const skillsList = [
+  {
+    container: "#photoshop",
+    percent: 90
+  },
+  {
+    container: "#html",
+    percent: 80
+  },
+  {
+    container: "#php",
+    percent: 70
+  },
+  {
+    container: "#wordpress",
+    percent: 90
+  }
+];
 
 $(document).ready(function() {
   new Slider();
@@ -22,4 +42,5 @@ $(document).ready(function() {
     "85%"
   );
   new SliderWithBullets();
+  new SkillsSet(skillsList);
 });

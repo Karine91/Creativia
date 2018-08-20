@@ -1,0 +1,33 @@
+section.section
+    .container
+        .section__header
+            h2.section__title our 
+                strong Skills
+            p.section__subtitle Lorem ipsum dolor sit amet, consectetur <strong> adipiscing elit.</strong> Integer sed magna vel velit dignissim luctus eu in urna. Dapibus egestas turpis.        
+        .section__content
+            .skills
+                -
+                    var skillsList = [
+                        {
+                            id: "photoshop",
+                            percent: 90
+                        },
+                        {
+                            id: "html",
+                            percent: 80
+                        },
+                        {
+                            id: "php",
+                            percent: 70
+                        },
+                        {
+                            id: "wordpress",
+                            percent: 90
+                        }
+                    ]
+                each item in skillsList    
+                    .slill__item
+                        .skill__circle(id=item.id)
+                        .skill__percent
+                            span #{item.percent}
+                            | %        
