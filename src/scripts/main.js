@@ -43,4 +43,7 @@ $(document).ready(function() {
   );
   new SliderWithBullets();
   new SkillsSet(skillsList);
+  new RevealOnScroll($(".services__item:odd"), "reveal-item--right", "85%");
+  new RevealOnScroll($(".services__item:even"), "reveal-item--left", "85%");
+  new RevealOnScroll($(".plans__item"), "reveal-item--left", "85%");
 });

@@ -5,29 +5,32 @@ section.section
                 strong Skills
             p.section__subtitle Lorem ipsum dolor sit amet, consectetur <strong> adipiscing elit.</strong> Integer sed magna vel velit dignissim luctus eu in urna. Dapibus egestas turpis.        
         .section__content
-            .skills
-                -
-                    var skillsList = [
-                        {
-                            id: "photoshop",
-                            percent: 90
-                        },
-                        {
-                            id: "html",
-                            percent: 80
-                        },
-                        {
-                            id: "php",
-                            percent: 70
-                        },
-                        {
-                            id: "wordpress",
-                            percent: 90
-                        }
-                    ]
-                each item in skillsList    
-                    .slill__item
-                        .skill__circle(id=item.id)
-                        .skill__percent
-                            span #{item.percent}
-                            | %        
+            -
+                var skillsList = [
+                    {
+                        id: "photoshop",
+                        percent: 90
+                    },
+                    {
+                        id: "html",
+                        percent: 80
+                    },
+                    {
+                        id: "php",
+                        percent: 70
+                    },
+                    {
+                        id: "wordpress",
+                        percent: 90
+                    }
+                ]
+            .row.skills
+                each item in skillsList
+                    .row__col.row__col--s-6.row__col--md-2  
+                        .skills__item
+                            .skills__circle(id=item.id)
+                                .skills__percent
+                                    span #{item.percent}
+                                    | % 
+                            .skills__name #{item.id}
+                            .skills__description  Donec luctus tortor in placerat faucibus              

@@ -1,0 +1,38 @@
+section.section
+    .container
+        .section__header
+            h2.section__title plans 
+                strong Bestseller 
+            p.section__subtitle Lorem ipsum dolor sit amet, consectetur <strong> adipiscing elit.</strong> Integer sed magna vel velit dignissim luctus eu in urna. Dapibus egestas turpis.
+        .section__content
+            .row.plans
+                -
+                    var plans = [
+                        {
+                            price: 199
+                        },
+                        {
+                            price: 157
+                        },
+                        {
+                            price: 136
+                        },
+                        {
+                            price: 99
+                        }
+                    ]
+
+                each item in plans
+                    .row__col.row__col--md-3.row__col--s-6
+                        .plans__item
+                            .plans__header reseller
+                            .plans__price #{item.price}$<span>year</span>
+                            .plans__text CPU E3-1230 3.3GHz 8MB-V2 
+                            .plans__text HARD 500GB SATA 7200 RPM 
+                            .plans__text RAM 8GB DDR3 1333MHZ ECC
+                            .plans__text Traffic 10 TB
+                            .plans__text Connection 100 MB
+                            .plans__text 5IP
+                            .plans__text
+                                button.btn Order now
+

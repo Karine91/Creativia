@@ -1,0 +1,52 @@
+include _mixins
+section.section.section--dark
+    .container
+        .section__header
+            h2.section__title.section__title--white our 
+                strong services 
+            p.section__subtitle.section__subtitle--gray Lorem ipsum dolor sit amet, consectetur <strong> adipiscing elit.</strong> Integer sed magna vel velit dignissim luctus eu in urna. Dapibus egestas turpis.
+        .section__content
+            ul.services
+                -
+                    var services = [
+                        {
+                            icon: 'code-solid',
+                            title: 'development'
+                        },
+                        {
+                            icon: 'html5-brands',
+                            title: 'html/css'
+                        },
+                        {
+                            icon: 'wordpress-simple-brands',
+                            title: 'wordpress'
+                        },
+                        {
+                            icon: 'tablet-alt-solid',
+                            title: 'applications'
+                        },
+                        {
+                            icon: 'pencil-alt-solid',
+                            title: 'ui/ux design'
+                        },
+                        {
+                            icon: 'laptop-solid',
+                            title: 'responsive layout'
+                        }
+
+                    ]
+                each item in services
+                    li.services__item
+                        .services__header
+                            .services__icon
+                                +icon('shape')
+                                +icon(item.icon)
+                            .services__name #{item.title} 
+                        .services__content
+                            p   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer sed magna vel velit dignissim luctus eu in urna Dapibus egestas in turpis and Praesent faucibus nisl sit amet nulla sollicitudin.    
+.divider.divider--red
+        hr.divider__hr
+        +icon('shape')   
+
+
+                

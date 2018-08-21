@@ -1,0 +1,80 @@
+.services {
+  list-style: none;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding: 0;
+  @extend .row;
+
+  &__item {
+    @extend .row__col;
+    flex-basis: 400px;
+
+    @include tablets {
+      flex-basis: 500px;
+    }
+    flex-grow: 1;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+  }
+
+  &__icon {
+    width: 66px;
+    height: 57px;
+    position: relative;
+    margin-right: 3rem;
+    transition: all ease 0.3s;
+    .icon {
+      height: 100%;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      margin: auto;
+    }
+
+    .icon--shape {
+      width: 100%;
+      fill: #a4a4a4;
+    }
+    .icon:not(.icon--shape) {
+      width: 30px;
+      height: 30px;
+      fill: $dark-gray;
+    }
+  }
+
+  &__name {
+    @extend .heading-medium;
+    color: white;
+  }
+
+  &__content {
+    margin-top: 3rem;
+    margin-bottom: 5.5rem;
+    background-color: #343434;
+    transition: background ease 0.3s;
+    padding: 3rem 2.5rem 3.5rem 3.8rem;
+    p {
+      margin: 0;
+      color: #a4a4a4;
+    }
+  }
+
+  &__item:hover {
+    cursor: pointer;
+    .icon--shape {
+      fill: $red;
+    }
+    .icon:not(.icon--shape) {
+      fill: white;
+    }
+
+    .services__content {
+      background-color: rgba($red, 0.1);
+    }
+  }
+}

@@ -742,7 +742,10 @@ a {
 .icons-group__title,
 .features-list__item,
 .testimonials__title,
-.employee__name {
+.employee__name,
+.skills__name,
+.services__name,
+.plans__header {
   text-transform: uppercase;
   font-family: "Raleway-Medium", sans-serif;
   font-size: 2rem;
@@ -750,14 +753,16 @@ a {
   font-weight: 400;
 }
 
-.row {
+.row,
+.services {
   display: flex;
   margin-left: -1.5rem;
   margin-right: -1.5rem;
   flex-wrap: wrap;
 }
 
-.row__col {
+.row__col,
+.services__item {
   padding: 0 1.5rem;
   width: 100%;
   display: flex;
@@ -777,6 +782,10 @@ a {
 
   .row__col--md-3 {
     width: 25%;
+  }
+
+  .row__col--md-2 {
+    width: 16.6667%;
   }
 }
 
@@ -807,6 +816,11 @@ a {
   width: 1em;
 }
 
+.icon--code-solid {
+  font-size: 51.2rem;
+  width: 1.25em;
+}
+
 .icon--device {
   font-size: 3.1rem;
   width: 0.83871em;
@@ -832,6 +846,21 @@ a {
   width: 1.14286em;
 }
 
+.icon--html5-brands {
+  font-size: 51.2rem;
+  width: 0.75em;
+}
+
+.icon--laptop-solid {
+  font-size: 51.2rem;
+  width: 1.25em;
+}
+
+.icon--pencil-alt-solid {
+  font-size: 51.2rem;
+  width: 1em;
+}
+
 .icon--pinterest {
   font-size: 51.2rem;
   width: 0.75em;
@@ -842,7 +871,17 @@ a {
   width: 1.18333em;
 }
 
+.icon--tablet-alt-solid {
+  font-size: 51.2rem;
+  width: 0.875em;
+}
+
 .icon--twitter {
+  font-size: 51.2rem;
+  width: 1em;
+}
+
+.icon--wordpress-simple-brands {
   font-size: 51.2rem;
   width: 1em;
 }
@@ -2372,5 +2411,190 @@ a {
 
 .skills {
   display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+.skills__item {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 960px) {
+  .skills__item {
+    margin-bottom: 0;
+  }
+}
+
+.skills__circle {
+  display: flex;
+  justify-content: center;
+  position: relative;
+}
+
+.skills__circle circle {
+  -webkit-transform-origin: 0 0;
+          transform-origin: 0 0;
+}
+
+.skills__percent {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Lato-Light", sans-serif;
+  font-size: 4rem;
+  color: #000;
+}
+
+.skills__percent span {
+  color: #ff0036;
+}
+
+.skills__name {
+  margin: 2.5rem 0;
+}
+
+.services {
+  list-style: none;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding: 0;
+}
+
+.services__item {
+  flex-basis: 400px;
+  flex-grow: 1;
+}
+
+@media (min-width: 960px) {
+  .services__item {
+    flex-basis: 500px;
+  }
+}
+
+.services__header {
+  display: flex;
+  align-items: center;
+}
+
+.services__icon {
+  width: 66px;
+  height: 57px;
+  position: relative;
+  margin-right: 3rem;
+  transition: all ease 0.3s;
+}
+
+.services__icon .icon {
+  height: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+}
+
+.services__icon .icon--shape {
+  width: 100%;
+  fill: #a4a4a4;
+}
+
+.services__icon .icon:not(.icon--shape) {
+  width: 30px;
+  height: 30px;
+  fill: #262626;
+}
+
+.services__name {
+  color: white;
+}
+
+.services__content {
+  margin-top: 3rem;
+  margin-bottom: 5.5rem;
+  background-color: #343434;
+  transition: background ease 0.3s;
+  padding: 3rem 2.5rem 3.5rem 3.8rem;
+}
+
+.services__content p,
+.services__content .accordion__item .accordion__content,
+.accordion__item .services__content .accordion__content {
+  margin: 0;
+  color: #a4a4a4;
+}
+
+.services__item:hover {
+  cursor: pointer;
+}
+
+.services__item:hover .icon--shape {
+  fill: #ff0036;
+}
+
+.services__item:hover .icon:not(.icon--shape) {
+  fill: white;
+}
+
+.services__item:hover .services__content {
+  background-color: rgba(255, 0, 54, 0.1);
+}
+
+.plans__item {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+@media (min-width: 960px) {
+  .plans__item {
+    margin-bottom: 0;
+  }
+}
+
+.plans__header {
+  background-color: #262626;
+  color: white;
+  padding: 1.5rem;
+  text-align: center;
+  line-height: 1;
+}
+
+.plans__price {
+  padding: 2.6rem 0 2.3rem;
+  background-color: #f2f2f2;
+  color: #262626;
+  font-size: 5rem;
+  font-family: "Lato-Bold", sans-serif;
+  transition: all 0.3s ease;
+}
+
+.plans__price span {
+  font-size: 1.6rem;
+  font-weight: 400;
+  font-family: "Lato-Regular", sans-serif;
+  margin-left: 1rem;
+}
+
+.plans__text {
+  border: 1px solid #e7e7e7;
+  border-top: none;
+  padding: 1.8rem;
+}
+
+.plans__item:hover {
+  cursor: pointer;
+}
+
+.plans__item:hover .plans__price,
+.plans__item:hover .btn {
+  background-color: #ff0036;
+  color: white;
 }
 /*# sourceMappingURL=main.css.map */

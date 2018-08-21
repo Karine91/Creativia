@@ -1,0 +1,52 @@
+.plans {
+  &__item {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    margin-bottom: 4rem;
+
+    @include tablets {
+      margin-bottom: 0;
+    }
+  }
+
+  &__header {
+    background-color: $dark-gray;
+    @extend .heading-medium;
+    color: white;
+    padding: 1.5rem;
+    text-align: center;
+    line-height: 1;
+  }
+
+  &__price {
+    padding: 2.6rem 0 2.3rem;
+    background-color: #f2f2f2;
+    color: $dark-gray;
+    font-size: 5rem;
+    font-family: "Lato-Bold", sans-serif;
+    transition: all 0.3s ease;
+
+    span {
+      font-size: 1.6rem;
+      font-weight: 400;
+      font-family: "Lato-Regular", sans-serif;
+      margin-left: 1rem;
+    }
+  }
+
+  &__text {
+    border: 1px solid #e7e7e7;
+    border-top: none;
+    padding: 1.8rem;
+  }
+
+  &__item:hover {
+    cursor: pointer;
+    .plans__price,
+    .btn {
+      background-color: $red;
+      color: white;
+    }
+  }
+}

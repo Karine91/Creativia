@@ -32,7 +32,7 @@ class Skill {
     circle.setAttribute("stroke", color);
     circle.setAttribute("stroke-width", "3");
     if (isBase) {
-      circle.setAttribute("transform", `rotate(-90 ${cx} ${cy})`);
+      // circle.setAttribute("transform", `rotate(-90 ${cx} ${cy})`);
       circle.setAttribute("stroke-dasharray", this.strokeDasharray);
       circle.setAttribute("stroke-dashoffset", this.strokeDasharray);
     }
@@ -47,9 +47,15 @@ class Skill {
   }
 
   draw() {
+    let dashOffset = this.strokeDasharray * (1 - this.percent / 100);
+    let angle = ((dashOffset / this.radius) * 180) / (2 * Math.PI);
+    this.baseCircle.setAttribute(
+      "transform",
+      `rotate(${angle} ${this.width / 2} ${this.height / 2})`
+    );
     $(this.baseCircle).animate(
       {
-        "stroke-dashoffset": this.strokeDasharray * (this.percent / 100)
+        "stroke-dashoffset": dashOffset
       },
       700
     );
