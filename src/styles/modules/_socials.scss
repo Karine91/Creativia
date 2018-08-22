@@ -8,6 +8,11 @@
 
   &__item {
     margin: 5px;
+
+    &--big {
+      margin: 2.5rem;
+      margin-top: 0.8rem;
+    }
   }
 
   &__icon {
@@ -38,6 +43,19 @@
     .icon.icon--facebook {
       left: -2px;
     }
+  }
+
+  &__icon--transparent {
+    .icon--shape {
+      fill: none;
+      stroke: $red;
+      stroke-width: 4px;
+    }
+  }
+
+  &__item--big &__icon {
+    width: 76px;
+    height: 68px;
   }
 
   &__link {

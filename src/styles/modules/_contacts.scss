@@ -1,0 +1,100 @@
+.map-wrap {
+  height: 575px;
+  position: relative;
+  .map {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.contact-form {
+  position: absolute;
+  background-color: #fff;
+  z-index: 1;
+  right: 17%;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 5rem 4.5rem;
+  width: 470px;
+  box-shadow: 0 0 9px rgba(#000, 0.17);
+
+  &__title {
+    @extend .heading-medium;
+    margin-bottom: 5rem;
+  }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+
+  &__input {
+    padding: 1.2rem 1.4rem;
+    line-height: 1;
+    border: 1px solid #e7e7e7;
+    @include placeholder {
+      color: $gray;
+    }
+    margin-bottom: 1.7rem;
+
+    &:focus {
+      outline: none;
+      border: 1px solid $dark-gray;
+    }
+  }
+
+  &__textarea {
+    @extend .form__input;
+    resize: none;
+    height: 88px;
+  }
+
+  .btn {
+    align-self: flex-end;
+  }
+}
+
+/* The location pointed to by the popup tip. */
+.popup-tip-anchor {
+  height: 0;
+  position: absolute;
+  /* The max width of the info window. */
+  width: 200px;
+}
+/* The bubble is anchored above the tip. */
+.popup-bubble-anchor {
+  position: absolute;
+  width: 100%;
+  bottom: /* TIP_HEIGHT= */ 8px;
+  left: 0;
+}
+/* Draw the tip. */
+.popup-bubble-anchor::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(-50%, 0);
+  width: 0;
+  height: 0;
+  /* The tip is 8px high, and 12px wide. */
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: /* TIP_HEIGHT= */ 8px solid white;
+}
+/* The popup bubble itself. */
+.popup-bubble-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -100%);
+  /* Style the info window. */
+  background-color: white;
+  padding: 5px;
+  border-radius: 5px;
+  font-family: sans-serif;
+  overflow-y: auto;
+  max-height: 60px;
+  box-shadow: 0px 2px 10px 1px rgba(0, 0, 0, 0.5);
+}

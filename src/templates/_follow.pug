@@ -1,0 +1,38 @@
+include _mixins
+section.follow.section.section--follow.section--overlay
+    .container
+        .section__header
+            h2.section__title.section__title--white Follow 
+                strong Creativia
+            ul.socials
+                -
+                    var follows = [
+                        {
+                            icon: 'facebook',
+                            count: 20000
+                        },
+                        {
+                            icon: 'twitter',
+                            count: 99900
+                        },
+                        {
+                            icon: 'pinterest',
+                            count: 5000
+                        },
+                        {
+                            icon: 'google-plus',
+                            count: 200
+                        }
+                    ]
+                each item in follows
+                    li.socials__item.socials__item--big
+                        a(href="#").socials__link
+                            .socials__icon.socials__icon--transparent
+                                +icon('shape')
+                                +icon(item.icon)
+                        .follow__count(id="follow_" + item.icon ) #{item.count}
+
+
+.divider.divider--red
+        hr.divider__hr
+        +icon('shape')             

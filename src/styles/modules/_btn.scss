@@ -11,14 +11,7 @@
   &:hover {
     border: none;
     outline: none;
-    background-color: darken($dark-brown, 10%);
-    cursor: pointer;
-  }
-
-  &--red {
     background-color: $red;
-    &:hover {
-      background-color: darken($red, 10%);
-    }
+    cursor: pointer;
   }
 }

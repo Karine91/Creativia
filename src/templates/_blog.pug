@@ -1,0 +1,45 @@
+include _mixins
+section.section
+    .container
+        .section__header
+            h2.section__title our 
+                strong blog 
+            p.section__subtitle Lorem ipsum dolor sit amet, consectetur <strong> adipiscing elit.</strong> Integer sed magna vel velit dignissim luctus eu in urna. Dapibus egestas turpis.
+        .section__content
+            -
+                    var blog = [
+                        {
+                            img: 'assets/images/blog/blog1.jpg',
+                            title: 'Lorem ipsum dolor sit amet, consectetur',
+                            desc: 'Integer ornare libero nisi. Duis ac magna urna. Nulla facilisi. Phasellus at ante magna. Quisque nec porta nulla. Suspendisse nec orci vel elit aliquet blandit in non orci. Vivamus posuere dui eget lacinia rutrum. Cum sociis natoque penatibus Integer ornare libero nisi. Duis ac magna urna. Nulla facilisi. Phasellus at ante magna. Quisque nec porta nulla. Suspendisse nec orci vel elit aliquet blandit in non orci. Vivamus posuere dui eget lacinia rutrum. Cum sociis natoque penatibus'
+                        },
+                        {
+                            img: 'assets/images/blog/blog2.jpg',
+                            title: 'Lorem ipsum dolor sit amet, consectetur',
+                            desc: 'Integer ornare libero nisi. Duis ac magna urna. Nulla facilisi. Phasellus at ante magna. Quisque nec porta nulla. Suspendisse nec orci vel elit aliquet blandit in non orci. Vivamus posuere dui eget lacinia rutrum. Cum sociis natoque penatibus'
+                        }
+                    ]
+            each item in blog
+                .blog-item
+                    .row
+                        .row__col.row__col--s-4
+                            .blog-item__picture(style=`background-image: url(${item.img})`)
+                        .row__col.row__col--s-8
+                            .blog-item__content
+                                .blog-item__title #{item.title}
+                                .blog-item__icons
+                                    span.blog-item__icon.blog-item__icon--user
+                                        +icon('user-solid')
+                                        | admin
+                                    span.blog-item__icon.blog-item__icon--comments 
+                                        +icon('comment-solid')
+                                        | 1205
+                                    span.blog-item__icon.blog-item__icon--views
+                                        +icon('eye-regular')
+                                        | 1205       
+                                p.blog-item__text #{item.desc}
+                                button.btn.blog-item__btn view more
+            .arrow-down
+                .arrow-down__icon-wrap
+                    +icon('angle-down-solid')                            
+

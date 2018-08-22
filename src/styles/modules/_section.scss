@@ -48,7 +48,7 @@
 
   &--clients {
     background-color: $dark-gray;
-    @include tablets {
+    @include small {
       background-image: url("../images/clients-bg.jpg");
       background-repeat: no-repeat;
       background-size: cover;
@@ -56,9 +56,16 @@
     }
   }
 
+  &--follow {
+    @extend .section--clients;
+    @include small {
+      background-image: url("../images/follow-bg.jpg");
+    }
+  }
+
   &--overlay {
     position: relative;
-    @include tablets {
+    @include small {
       &:before {
         position: absolute;
         top: 0;

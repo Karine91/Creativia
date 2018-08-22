@@ -14,6 +14,14 @@
       &--s-6 {
         width: 50%;
       }
+
+      &--s-4 {
+        width: 33.3333%;
+      }
+
+      &--s-8 {
+        width: 66.66667%;
+      }
     }
 
     @include tablets {

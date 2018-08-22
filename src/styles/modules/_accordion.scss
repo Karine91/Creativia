@@ -1,4 +1,5 @@
 .accordion {
+  height: 282px;
   &__header {
     color: $dark-gray;
     font-family: "Raleway-Medium", sans-serif;
@@ -55,10 +56,14 @@
   &__item {
     margin-bottom: 1rem;
     .accordion__content {
-      @extend p;
-      display: none;
-      padding: 1.3rem 1.5rem;
-      margin: 0;
+      height: 0;
+
+      transition: height ease 0.3s;
+      p {
+        margin: 0;
+        height: 100%;
+        overflow: hidden;
+      }
     }
   }
 
@@ -81,7 +86,9 @@
     }
 
     .accordion__content {
-      display: block;
+      height: 103px;
+      padding: 1.3rem 1.5rem;
+      transition: height ease 0.3s;
     }
   }
 }

@@ -1,0 +1,22 @@
+include _mixins
+section.section
+    .container
+        .section__header
+            h2.section__title Find us 
+                strong here
+            p.section__subtitle Lorem ipsum dolor sit amet, consectetur <strong> adipiscing elit.</strong> Integer sed magna vel velit dignissim luctus eu in urna. Dapibus egestas turpis.
+    .map-wrap
+        #map.map
+        #map__content
+            | Hello
+        .contact-form
+            .contact-form__title Send message
+            form.form
+                input.form__input(type="text" name="name" placeholder="Name")
+                input.form__input(type="email", name="email" placeholder="Email")
+                input.form__input(type="text" name="subject" placeholder="Subject")
+            textarea.form__textarea(name="description", cols="30", rows="10")
+            button.btn(type="submit") Submit
+
+            
+

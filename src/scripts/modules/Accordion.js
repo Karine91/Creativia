@@ -13,15 +13,15 @@ class Accordion {
 
   onItemClick(e) {
     this.$accordionItem.removeClass(this.activeItemSelector);
-    this.$accordionItem
-      .find(this.itemContentSelector)
-      .stop()
-      .slideUp();
+    // this.$accordionItem
+    //   .find(this.itemContentSelector)
+    //   .stop()
+    //   .slideUp();
     let currentItem = $(e.target).closest(".accordion__item");
-    currentItem
-      .find(this.itemContentSelector)
-      .stop()
-      .slideDown();
+    // currentItem
+    //   .find(this.itemContentSelector)
+    //   .stop()
+    //   .slideDown();
     currentItem.addClass(this.activeItemSelector);
   }
 }

@@ -6,6 +6,9 @@ import HexagonSlider from "./modules/HexagonSlide";
 import RevealOnScroll from "./modules/RevealOnScroll";
 import SliderWithBullets from "./modules/SliderWithBullets";
 import SkillsSet from "./modules/Skills";
+import Blog from "./modules/Blog";
+import Follow from "./modules/Follow";
+import GoogleMap from "./modules/Map";
 
 const skillsList = [
   {
@@ -24,6 +27,13 @@ const skillsList = [
     container: "#wordpress",
     percent: 90
   }
+];
+
+const followList = [
+  "#follow_facebook",
+  "#follow_twitter",
+  "#follow_pinterest",
+  "#follow_google-plus"
 ];
 
 $(document).ready(function() {
@@ -46,4 +56,7 @@ $(document).ready(function() {
   new RevealOnScroll($(".services__item:odd"), "reveal-item--right", "85%");
   new RevealOnScroll($(".services__item:even"), "reveal-item--left", "85%");
   new RevealOnScroll($(".plans__item"), "reveal-item--left", "85%");
+  new Blog();
+  new Follow(followList);
+  new GoogleMap();
 });
