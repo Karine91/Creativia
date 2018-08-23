@@ -1092,19 +1092,38 @@
         </div>
         <div class="map-wrap">
           <div class="map" id="map"></div>
-          <div id="map__content">Hello</div>
+          <div id="map__content">
+            <p>egypt, creativia </p>
+            <p>Address: cairo 123 </p>
+            <p>Phone: +0201091915171</p>
+            <p>Email:  gfx3mr@gmail.com</p>
+          </div>
           <div class="contact-form">
             <div class="contact-form__title">Send message</div>
-            <form class="form">
-              <input class="form__input" type="text" name="name" placeholder="Name">
-              <input class="form__input" type="email" name="email" placeholder="Email">
-              <input class="form__input" type="text" name="subject" placeholder="Subject">
+            <form class="form" action="/" method="POST">
+              <div class="form__input-group">
+                <input class="form__input" type="text" name="name" placeholder="Name">
+              </div>
+              <div class="form__input-group">   
+                <input class="form__input" type="email" name="email" placeholder="Email">
+              </div>
+              <div class="form__input-group">   
+                <input class="form__input" type="text" name="subject" placeholder="Subject">
+              </div>
+              <div class="form__input-group">   
+                <textarea class="form__textarea" name="description" cols="30" rows="10"></textarea>
+              </div>
+              <button class="btn" type="submit">Submit</button>
             </form>
-            <textarea class="form__textarea" name="description" cols="30" rows="10"></textarea>
-            <button class="btn" type="submit">Submit</button>
           </div>
         </div>
       </section>
+      <footer class="footer">
+        <div class="footer__logo">
+          <div class="footer__text-img-wrapper">Creativia<img class="footer__logo-image" src="/assets/images/logo-text-gray.png" alt="Creactivia"></div>
+        </div>
+        <div class="footer__copyright">Design by  Amr Srour        </div>
+      </footer>
     </div>
     <script src="/assets/scripts/main.js"></script>
   </body>

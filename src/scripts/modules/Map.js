@@ -3,7 +3,10 @@ let Popup;
 class GoogleMap {
   constructor() {
     this.apiKey = "AIzaSyAxepjUtDZ_Bods64x5L79GK9_mM7_ouVg";
-    window.initMap = this.initMap;
+    window.initMap = this.initMap.bind(this);
+    this.$map = $("#map");
+    this.lat = -35.054102;
+    this.lng = 146.761693;
     this.addScript();
   }
 
@@ -18,15 +21,17 @@ class GoogleMap {
 
   initMap() {
     definePopupClass();
-    let map = new google.maps.Map(document.getElementById("map"), {
-      center: { lat: -34.397, lng: 150.644 },
+
+    let map = new google.maps.Map(this.$map[0], {
+      center: { lat: -34.397, lng: 148.396 },
       zoom: 8
     });
 
     let popup = new Popup(
-      new google.maps.LatLng(-34.655, 148.396),
+      new google.maps.LatLng(this.lat, this.lng),
       document.getElementById("map__content")
     );
+
     popup.setMap(map);
   }
 }

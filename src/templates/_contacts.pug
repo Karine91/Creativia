@@ -8,15 +8,22 @@ section.section
     .map-wrap
         #map.map
         #map__content
-            | Hello
+            p egypt, creativia 
+            p Address: cairo 123 
+            p Phone: +0201091915171
+            p Email:  gfx3mr@gmail.com
         .contact-form
             .contact-form__title Send message
-            form.form
-                input.form__input(type="text" name="name" placeholder="Name")
-                input.form__input(type="email", name="email" placeholder="Email")
-                input.form__input(type="text" name="subject" placeholder="Subject")
-            textarea.form__textarea(name="description", cols="30", rows="10")
-            button.btn(type="submit") Submit
+            form.form(action="/" method="POST")
+                .form__input-group
+                    input.form__input(type="text" name="name" placeholder="Name" )
+                .form__input-group    
+                    input.form__input(type="email", name="email" placeholder="Email" )
+                .form__input-group    
+                    input.form__input(type="text" name="subject" placeholder="Subject" )
+                .form__input-group    
+                    textarea.form__textarea(name="description", cols="30", rows="10")
+                button.btn(type="submit") Submit
 
             
 

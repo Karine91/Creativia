@@ -1,0 +1,33 @@
+.footer {
+  height: 80px;
+  background-color: $dark-gray;
+  display: flex;
+  justify-content: flex-end;
+
+  &__logo {
+    display: inline-flex;
+    width: 50%;
+    position: relative;
+  }
+
+  &__text-img-wrapper {
+    width: 120px;
+
+    margin: 0 auto;
+    @extend .logo__text-img-wrapper;
+
+    img {
+      width: 100%;
+      display: block;
+    }
+  }
+
+  &__copyright {
+    width: 25%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 43px;
+    color: #8e8e8e;
+  }
+}

@@ -1,4 +1,5 @@
 import $ from "jquery";
+import "jquery-validation";
 import Slider from "./modules/Slider";
 import Portfolio from "./modules/Portfolio";
 import Accordion from "./modules/Accordion";
@@ -9,6 +10,7 @@ import SkillsSet from "./modules/Skills";
 import Blog from "./modules/Blog";
 import Follow from "./modules/Follow";
 import GoogleMap from "./modules/Map";
+import Validation from "./modules/Validation";
 
 const skillsList = [
   {
@@ -59,4 +61,5 @@ $(document).ready(function() {
   new Blog();
   new Follow(followList);
   new GoogleMap();
+  new Validation();
 });
