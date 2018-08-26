@@ -3,7 +3,9 @@ var gulp = require("gulp"),
   del = require("del"),
   cssnano = require("gulp-cssnano"),
   uglify = require("gulp-uglify"),
-  browserSync = require("browser-sync").create();
+  browserSync = require("browser-sync").create(),
+  webpack = require("webpack"),
+  pug = require("gulp-pug");
 
 gulp.task("previewDist", function() {
   browserSync.init({
@@ -31,9 +33,9 @@ gulp.task("copyGeneralFiles", function() {
 
 gulp.task("compressedStyles", function() {
   return gulp
-    .src("./public/dist/*.css")
+    .src("./dist/*.css")
     .pipe(cssnano())
-    .pipe(gulp.dest("./public/dist/"));
+    .pipe(gulp.dest("./dist/"));
 });
 
 gulp.task("prodScripts", function(done) {
@@ -51,9 +53,9 @@ gulp.task("prodScripts", function(done) {
 
 gulp.task("compressedScripts", function(done) {
   return gulp
-    .src("./app/assets/styles/*.js")
+    .src("./app/assets/scripts/*.js")
     .pipe(uglify())
-    .pipe(gulp.dest("./app/assets/styles/"));
+    .pipe(gulp.dest("./dist/assets/scripts/"));
 });
 
 gulp.task("optimazeImages", function() {
@@ -73,10 +75,18 @@ gulp.task("optimazeImages", function() {
     .pipe(gulp.dest("./dist/assets/images"));
 });
 
+gulp.task("copyTemplates", function() {
+  return gulp
+    .src("./src/index.pug")
+    .pipe(pug({ pretty: true }))
+    .pipe(gulp.dest("./dist"));
+});
+
 gulp.task(
   "build",
   gulp.series(
     "deleteDistFolder",
+    "copyTemplates",
     "styles",
     "optimazeImages",
     "compressedStyles",

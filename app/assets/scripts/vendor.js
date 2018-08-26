@@ -94,7 +94,1592 @@
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("/* WEBPACK VAR INJECTION */(function(module) {var __WEBPACK_AMD_DEFINE_RESULT__;\n\nvar _typeof = typeof Symbol === \"function\" && typeof Symbol.iterator === \"symbol\" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === \"function\" && obj.constructor === Symbol && obj !== Symbol.prototype ? \"symbol\" : typeof obj; };\n\n/*! picturefill - v3.0.2 - 2016-02-12\n * https://scottjehl.github.io/picturefill/\n * Copyright (c) 2016 https://github.com/scottjehl/picturefill/blob/master/Authors.txt; Licensed MIT\n */\n/*! Gecko-Picture - v1.0\n * https://github.com/scottjehl/picturefill/tree/3.0/src/plugins/gecko-picture\n * Firefox's early picture implementation (prior to FF41) is static and does\n * not react to viewport changes. This tiny module fixes this.\n */\n(function (window) {\n\t/*jshint eqnull:true */\n\tvar ua = navigator.userAgent;\n\n\tif (window.HTMLPictureElement && /ecko/.test(ua) && ua.match(/rv\\:(\\d+)/) && RegExp.$1 < 45) {\n\t\taddEventListener(\"resize\", function () {\n\t\t\tvar timer;\n\n\t\t\tvar dummySrc = document.createElement(\"source\");\n\n\t\t\tvar fixRespimg = function fixRespimg(img) {\n\t\t\t\tvar source, sizes;\n\t\t\t\tvar picture = img.parentNode;\n\n\t\t\t\tif (picture.nodeName.toUpperCase() === \"PICTURE\") {\n\t\t\t\t\tsource = dummySrc.cloneNode();\n\n\t\t\t\t\tpicture.insertBefore(source, picture.firstElementChild);\n\t\t\t\t\tsetTimeout(function () {\n\t\t\t\t\t\tpicture.removeChild(source);\n\t\t\t\t\t});\n\t\t\t\t} else if (!img._pfLastSize || img.offsetWidth > img._pfLastSize) {\n\t\t\t\t\timg._pfLastSize = img.offsetWidth;\n\t\t\t\t\tsizes = img.sizes;\n\t\t\t\t\timg.sizes += \",100vw\";\n\t\t\t\t\tsetTimeout(function () {\n\t\t\t\t\t\timg.sizes = sizes;\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t};\n\n\t\t\tvar findPictureImgs = function findPictureImgs() {\n\t\t\t\tvar i;\n\t\t\t\tvar imgs = document.querySelectorAll(\"picture > img, img[srcset][sizes]\");\n\t\t\t\tfor (i = 0; i < imgs.length; i++) {\n\t\t\t\t\tfixRespimg(imgs[i]);\n\t\t\t\t}\n\t\t\t};\n\t\t\tvar onResize = function onResize() {\n\t\t\t\tclearTimeout(timer);\n\t\t\t\ttimer = setTimeout(findPictureImgs, 99);\n\t\t\t};\n\t\t\tvar mq = window.matchMedia && matchMedia(\"(orientation: landscape)\");\n\t\t\tvar init = function init() {\n\t\t\t\tonResize();\n\n\t\t\t\tif (mq && mq.addListener) {\n\t\t\t\t\tmq.addListener(onResize);\n\t\t\t\t}\n\t\t\t};\n\n\t\t\tdummySrc.srcset = \"data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==\";\n\n\t\t\tif (/^[c|i]|d$/.test(document.readyState || \"\")) {\n\t\t\t\tinit();\n\t\t\t} else {\n\t\t\t\tdocument.addEventListener(\"DOMContentLoaded\", init);\n\t\t\t}\n\n\t\t\treturn onResize;\n\t\t}());\n\t}\n})(window);\n\n/*! Picturefill - v3.0.2\n * http://scottjehl.github.io/picturefill\n * Copyright (c) 2015 https://github.com/scottjehl/picturefill/blob/master/Authors.txt;\n *  License: MIT\n */\n\n(function (window, document, undefined) {\n\t// Enable strict mode\n\t\"use strict\";\n\n\t// HTML shim|v it for old IE (IE9 will still need the HTML video tag workaround)\n\n\tdocument.createElement(\"picture\");\n\n\tvar warn, eminpx, alwaysCheckWDescriptor, evalId;\n\t// local object for method references and testing exposure\n\tvar pf = {};\n\tvar isSupportTestReady = false;\n\tvar noop = function noop() {};\n\tvar image = document.createElement(\"img\");\n\tvar getImgAttr = image.getAttribute;\n\tvar setImgAttr = image.setAttribute;\n\tvar removeImgAttr = image.removeAttribute;\n\tvar docElem = document.documentElement;\n\tvar types = {};\n\tvar cfg = {\n\t\t//resource selection:\n\t\talgorithm: \"\"\n\t};\n\tvar srcAttr = \"data-pfsrc\";\n\tvar srcsetAttr = srcAttr + \"set\";\n\t// ua sniffing is done for undetectable img loading features,\n\t// to do some non crucial perf optimizations\n\tvar ua = navigator.userAgent;\n\tvar supportAbort = /rident/.test(ua) || /ecko/.test(ua) && ua.match(/rv\\:(\\d+)/) && RegExp.$1 > 35;\n\tvar curSrcProp = \"currentSrc\";\n\tvar regWDesc = /\\s+\\+?\\d+(e\\d+)?w/;\n\tvar regSize = /(\\([^)]+\\))?\\s*(.+)/;\n\tvar setOptions = window.picturefillCFG;\n\t/**\n  * Shortcut property for https://w3c.github.io/webappsec/specs/mixedcontent/#restricts-mixed-content ( for easy overriding in tests )\n  */\n\t// baseStyle also used by getEmValue (i.e.: width: 1em is important)\n\tvar baseStyle = \"position:absolute;left:0;visibility:hidden;display:block;padding:0;border:none;font-size:1em;width:1em;overflow:hidden;clip:rect(0px, 0px, 0px, 0px)\";\n\tvar fsCss = \"font-size:100%!important;\";\n\tvar isVwDirty = true;\n\n\tvar cssCache = {};\n\tvar sizeLengthCache = {};\n\tvar DPR = window.devicePixelRatio;\n\tvar units = {\n\t\tpx: 1,\n\t\t\"in\": 96\n\t};\n\tvar anchor = document.createElement(\"a\");\n\t/**\n  * alreadyRun flag used for setOptions. is it true setOptions will reevaluate\n  * @type {boolean}\n  */\n\tvar alreadyRun = false;\n\n\t// Reusable, non-\"g\" Regexes\n\n\t// (Don't use \\s, to avoid matching non-breaking space.)\n\tvar regexLeadingSpaces = /^[ \\t\\n\\r\\u000c]+/,\n\t    regexLeadingCommasOrSpaces = /^[, \\t\\n\\r\\u000c]+/,\n\t    regexLeadingNotSpaces = /^[^ \\t\\n\\r\\u000c]+/,\n\t    regexTrailingCommas = /[,]+$/,\n\t    regexNonNegativeInteger = /^\\d+$/,\n\n\n\t// ( Positive or negative or unsigned integers or decimals, without or without exponents.\n\t// Must include at least one digit.\n\t// According to spec tests any decimal point must be followed by a digit.\n\t// No leading plus sign is allowed.)\n\t// https://html.spec.whatwg.org/multipage/infrastructure.html#valid-floating-point-number\n\tregexFloatingPoint = /^-?(?:[0-9]+|[0-9]*\\.[0-9]+)(?:[eE][+-]?[0-9]+)?$/;\n\n\tvar on = function on(obj, evt, fn, capture) {\n\t\tif (obj.addEventListener) {\n\t\t\tobj.addEventListener(evt, fn, capture || false);\n\t\t} else if (obj.attachEvent) {\n\t\t\tobj.attachEvent(\"on\" + evt, fn);\n\t\t}\n\t};\n\n\t/**\n  * simple memoize function:\n  */\n\n\tvar memoize = function memoize(fn) {\n\t\tvar cache = {};\n\t\treturn function (input) {\n\t\t\tif (!(input in cache)) {\n\t\t\t\tcache[input] = fn(input);\n\t\t\t}\n\t\t\treturn cache[input];\n\t\t};\n\t};\n\n\t// UTILITY FUNCTIONS\n\n\t// Manual is faster than RegEx\n\t// http://jsperf.com/whitespace-character/5\n\tfunction isSpace(c) {\n\t\treturn c === \" \" || // space\n\t\tc === \"\\t\" || // horizontal tab\n\t\tc === \"\\n\" || // new line\n\t\tc === \"\\f\" || // form feed\n\t\tc === \"\\r\"; // carriage return\n\t}\n\n\t/**\n  * gets a mediaquery and returns a boolean or gets a css length and returns a number\n  * @param css mediaqueries or css length\n  * @returns {boolean|number}\n  *\n  * based on: https://gist.github.com/jonathantneal/db4f77009b155f083738\n  */\n\tvar evalCSS = function () {\n\n\t\tvar regLength = /^([\\d\\.]+)(em|vw|px)$/;\n\t\tvar replace = function replace() {\n\t\t\tvar args = arguments,\n\t\t\t    index = 0,\n\t\t\t    string = args[0];\n\t\t\twhile (++index in args) {\n\t\t\t\tstring = string.replace(args[index], args[++index]);\n\t\t\t}\n\t\t\treturn string;\n\t\t};\n\n\t\tvar buildStr = memoize(function (css) {\n\n\t\t\treturn \"return \" + replace((css || \"\").toLowerCase(),\n\t\t\t// interpret `and`\n\t\t\t/\\band\\b/g, \"&&\",\n\n\t\t\t// interpret `,`\n\t\t\t/,/g, \"||\",\n\n\t\t\t// interpret `min-` as >=\n\t\t\t/min-([a-z-\\s]+):/g, \"e.$1>=\",\n\n\t\t\t// interpret `max-` as <=\n\t\t\t/max-([a-z-\\s]+):/g, \"e.$1<=\",\n\n\t\t\t//calc value\n\t\t\t/calc([^)]+)/g, \"($1)\",\n\n\t\t\t// interpret css values\n\t\t\t/(\\d+[\\.]*[\\d]*)([a-z]+)/g, \"($1 * e.$2)\",\n\t\t\t//make eval less evil\n\t\t\t/^(?!(e.[a-z]|[0-9\\.&=|><\\+\\-\\*\\(\\)\\/])).*/ig, \"\") + \";\";\n\t\t});\n\n\t\treturn function (css, length) {\n\t\t\tvar parsedLength;\n\t\t\tif (!(css in cssCache)) {\n\t\t\t\tcssCache[css] = false;\n\t\t\t\tif (length && (parsedLength = css.match(regLength))) {\n\t\t\t\t\tcssCache[css] = parsedLength[1] * units[parsedLength[2]];\n\t\t\t\t} else {\n\t\t\t\t\t/*jshint evil:true */\n\t\t\t\t\ttry {\n\t\t\t\t\t\tcssCache[css] = new Function(\"e\", buildStr(css))(units);\n\t\t\t\t\t} catch (e) {}\n\t\t\t\t\t/*jshint evil:false */\n\t\t\t\t}\n\t\t\t}\n\t\t\treturn cssCache[css];\n\t\t};\n\t}();\n\n\tvar setResolution = function setResolution(candidate, sizesattr) {\n\t\tif (candidate.w) {\n\t\t\t// h = means height: || descriptor.type === 'h' do not handle yet...\n\t\t\tcandidate.cWidth = pf.calcListLength(sizesattr || \"100vw\");\n\t\t\tcandidate.res = candidate.w / candidate.cWidth;\n\t\t} else {\n\t\t\tcandidate.res = candidate.d;\n\t\t}\n\t\treturn candidate;\n\t};\n\n\t/**\n  *\n  * @param opt\n  */\n\tvar picturefill = function picturefill(opt) {\n\n\t\tif (!isSupportTestReady) {\n\t\t\treturn;\n\t\t}\n\n\t\tvar elements, i, plen;\n\n\t\tvar options = opt || {};\n\n\t\tif (options.elements && options.elements.nodeType === 1) {\n\t\t\tif (options.elements.nodeName.toUpperCase() === \"IMG\") {\n\t\t\t\toptions.elements = [options.elements];\n\t\t\t} else {\n\t\t\t\toptions.context = options.elements;\n\t\t\t\toptions.elements = null;\n\t\t\t}\n\t\t}\n\n\t\telements = options.elements || pf.qsa(options.context || document, options.reevaluate || options.reselect ? pf.sel : pf.selShort);\n\n\t\tif (plen = elements.length) {\n\n\t\t\tpf.setupRun(options);\n\t\t\talreadyRun = true;\n\n\t\t\t// Loop through all elements\n\t\t\tfor (i = 0; i < plen; i++) {\n\t\t\t\tpf.fillImg(elements[i], options);\n\t\t\t}\n\n\t\t\tpf.teardownRun(options);\n\t\t}\n\t};\n\n\t/**\n  * outputs a warning for the developer\n  * @param {message}\n  * @type {Function}\n  */\n\twarn = window.console && console.warn ? function (message) {\n\t\tconsole.warn(message);\n\t} : noop;\n\n\tif (!(curSrcProp in image)) {\n\t\tcurSrcProp = \"src\";\n\t}\n\n\t// Add support for standard mime types.\n\ttypes[\"image/jpeg\"] = true;\n\ttypes[\"image/gif\"] = true;\n\ttypes[\"image/png\"] = true;\n\n\tfunction detectTypeSupport(type, typeUri) {\n\t\t// based on Modernizr's lossless img-webp test\n\t\t// note: asynchronous\n\t\tvar image = new window.Image();\n\t\timage.onerror = function () {\n\t\t\ttypes[type] = false;\n\t\t\tpicturefill();\n\t\t};\n\t\timage.onload = function () {\n\t\t\ttypes[type] = image.width === 1;\n\t\t\tpicturefill();\n\t\t};\n\t\timage.src = typeUri;\n\t\treturn \"pending\";\n\t}\n\n\t// test svg support\n\ttypes[\"image/svg+xml\"] = document.implementation.hasFeature(\"http://www.w3.org/TR/SVG11/feature#Image\", \"1.1\");\n\n\t/**\n  * updates the internal vW property with the current viewport width in px\n  */\n\tfunction updateMetrics() {\n\n\t\tisVwDirty = false;\n\t\tDPR = window.devicePixelRatio;\n\t\tcssCache = {};\n\t\tsizeLengthCache = {};\n\n\t\tpf.DPR = DPR || 1;\n\n\t\tunits.width = Math.max(window.innerWidth || 0, docElem.clientWidth);\n\t\tunits.height = Math.max(window.innerHeight || 0, docElem.clientHeight);\n\n\t\tunits.vw = units.width / 100;\n\t\tunits.vh = units.height / 100;\n\n\t\tevalId = [units.height, units.width, DPR].join(\"-\");\n\n\t\tunits.em = pf.getEmValue();\n\t\tunits.rem = units.em;\n\t}\n\n\tfunction chooseLowRes(lowerValue, higherValue, dprValue, isCached) {\n\t\tvar bonusFactor, tooMuch, bonus, meanDensity;\n\n\t\t//experimental\n\t\tif (cfg.algorithm === \"saveData\") {\n\t\t\tif (lowerValue > 2.7) {\n\t\t\t\tmeanDensity = dprValue + 1;\n\t\t\t} else {\n\t\t\t\ttooMuch = higherValue - dprValue;\n\t\t\t\tbonusFactor = Math.pow(lowerValue - 0.6, 1.5);\n\n\t\t\t\tbonus = tooMuch * bonusFactor;\n\n\t\t\t\tif (isCached) {\n\t\t\t\t\tbonus += 0.1 * bonusFactor;\n\t\t\t\t}\n\n\t\t\t\tmeanDensity = lowerValue + bonus;\n\t\t\t}\n\t\t} else {\n\t\t\tmeanDensity = dprValue > 1 ? Math.sqrt(lowerValue * higherValue) : lowerValue;\n\t\t}\n\n\t\treturn meanDensity > dprValue;\n\t}\n\n\tfunction applyBestCandidate(img) {\n\t\tvar srcSetCandidates;\n\t\tvar matchingSet = pf.getSet(img);\n\t\tvar evaluated = false;\n\t\tif (matchingSet !== \"pending\") {\n\t\t\tevaluated = evalId;\n\t\t\tif (matchingSet) {\n\t\t\t\tsrcSetCandidates = pf.setRes(matchingSet);\n\t\t\t\tpf.applySetCandidate(srcSetCandidates, img);\n\t\t\t}\n\t\t}\n\t\timg[pf.ns].evaled = evaluated;\n\t}\n\n\tfunction ascendingSort(a, b) {\n\t\treturn a.res - b.res;\n\t}\n\n\tfunction setSrcToCur(img, src, set) {\n\t\tvar candidate;\n\t\tif (!set && src) {\n\t\t\tset = img[pf.ns].sets;\n\t\t\tset = set && set[set.length - 1];\n\t\t}\n\n\t\tcandidate = getCandidateForSrc(src, set);\n\n\t\tif (candidate) {\n\t\t\tsrc = pf.makeUrl(src);\n\t\t\timg[pf.ns].curSrc = src;\n\t\t\timg[pf.ns].curCan = candidate;\n\n\t\t\tif (!candidate.res) {\n\t\t\t\tsetResolution(candidate, candidate.set.sizes);\n\t\t\t}\n\t\t}\n\t\treturn candidate;\n\t}\n\n\tfunction getCandidateForSrc(src, set) {\n\t\tvar i, candidate, candidates;\n\t\tif (src && set) {\n\t\t\tcandidates = pf.parseSet(set);\n\t\t\tsrc = pf.makeUrl(src);\n\t\t\tfor (i = 0; i < candidates.length; i++) {\n\t\t\t\tif (src === pf.makeUrl(candidates[i].url)) {\n\t\t\t\t\tcandidate = candidates[i];\n\t\t\t\t\tbreak;\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t\treturn candidate;\n\t}\n\n\tfunction getAllSourceElements(picture, candidates) {\n\t\tvar i, len, source, srcset;\n\n\t\t// SPEC mismatch intended for size and perf:\n\t\t// actually only source elements preceding the img should be used\n\t\t// also note: don't use qsa here, because IE8 sometimes doesn't like source as the key part in a selector\n\t\tvar sources = picture.getElementsByTagName(\"source\");\n\n\t\tfor (i = 0, len = sources.length; i < len; i++) {\n\t\t\tsource = sources[i];\n\t\t\tsource[pf.ns] = true;\n\t\t\tsrcset = source.getAttribute(\"srcset\");\n\n\t\t\t// if source does not have a srcset attribute, skip\n\t\t\tif (srcset) {\n\t\t\t\tcandidates.push({\n\t\t\t\t\tsrcset: srcset,\n\t\t\t\t\tmedia: source.getAttribute(\"media\"),\n\t\t\t\t\ttype: source.getAttribute(\"type\"),\n\t\t\t\t\tsizes: source.getAttribute(\"sizes\")\n\t\t\t\t});\n\t\t\t}\n\t\t}\n\t}\n\n\t/**\n  * Srcset Parser\n  * By Alex Bell |  MIT License\n  *\n  * @returns Array [{url: _, d: _, w: _, h:_, set:_(????)}, ...]\n  *\n  * Based super duper closely on the reference algorithm at:\n  * https://html.spec.whatwg.org/multipage/embedded-content.html#parse-a-srcset-attribute\n  */\n\n\t// 1. Let input be the value passed to this algorithm.\n\t// (TO-DO : Explain what \"set\" argument is here. Maybe choose a more\n\t// descriptive & more searchable name.  Since passing the \"set\" in really has\n\t// nothing to do with parsing proper, I would prefer this assignment eventually\n\t// go in an external fn.)\n\tfunction parseSrcset(input, set) {\n\n\t\tfunction collectCharacters(regEx) {\n\t\t\tvar chars,\n\t\t\t    match = regEx.exec(input.substring(pos));\n\t\t\tif (match) {\n\t\t\t\tchars = match[0];\n\t\t\t\tpos += chars.length;\n\t\t\t\treturn chars;\n\t\t\t}\n\t\t}\n\n\t\tvar inputLength = input.length,\n\t\t    url,\n\t\t    descriptors,\n\t\t    currentDescriptor,\n\t\t    state,\n\t\t    c,\n\n\n\t\t// 2. Let position be a pointer into input, initially pointing at the start\n\t\t//    of the string.\n\t\tpos = 0,\n\n\n\t\t// 3. Let candidates be an initially empty source set.\n\t\tcandidates = [];\n\n\t\t/**\n  * Adds descriptor properties to a candidate, pushes to the candidates array\n  * @return undefined\n  */\n\t\t// (Declared outside of the while loop so that it's only created once.\n\t\t// (This fn is defined before it is used, in order to pass JSHINT.\n\t\t// Unfortunately this breaks the sequencing of the spec comments. :/ )\n\t\tfunction parseDescriptors() {\n\n\t\t\t// 9. Descriptor parser: Let error be no.\n\t\t\tvar pError = false,\n\n\n\t\t\t// 10. Let width be absent.\n\t\t\t// 11. Let density be absent.\n\t\t\t// 12. Let future-compat-h be absent. (We're implementing it now as h)\n\t\t\tw,\n\t\t\t    d,\n\t\t\t    h,\n\t\t\t    i,\n\t\t\t    candidate = {},\n\t\t\t    desc,\n\t\t\t    lastChar,\n\t\t\t    value,\n\t\t\t    intVal,\n\t\t\t    floatVal;\n\n\t\t\t// 13. For each descriptor in descriptors, run the appropriate set of steps\n\t\t\t// from the following list:\n\t\t\tfor (i = 0; i < descriptors.length; i++) {\n\t\t\t\tdesc = descriptors[i];\n\n\t\t\t\tlastChar = desc[desc.length - 1];\n\t\t\t\tvalue = desc.substring(0, desc.length - 1);\n\t\t\t\tintVal = parseInt(value, 10);\n\t\t\t\tfloatVal = parseFloat(value);\n\n\t\t\t\t// If the descriptor consists of a valid non-negative integer followed by\n\t\t\t\t// a U+0077 LATIN SMALL LETTER W character\n\t\t\t\tif (regexNonNegativeInteger.test(value) && lastChar === \"w\") {\n\n\t\t\t\t\t// If width and density are not both absent, then let error be yes.\n\t\t\t\t\tif (w || d) {\n\t\t\t\t\t\tpError = true;\n\t\t\t\t\t}\n\n\t\t\t\t\t// Apply the rules for parsing non-negative integers to the descriptor.\n\t\t\t\t\t// If the result is zero, let error be yes.\n\t\t\t\t\t// Otherwise, let width be the result.\n\t\t\t\t\tif (intVal === 0) {\n\t\t\t\t\t\tpError = true;\n\t\t\t\t\t} else {\n\t\t\t\t\t\tw = intVal;\n\t\t\t\t\t}\n\n\t\t\t\t\t// If the descriptor consists of a valid floating-point number followed by\n\t\t\t\t\t// a U+0078 LATIN SMALL LETTER X character\n\t\t\t\t} else if (regexFloatingPoint.test(value) && lastChar === \"x\") {\n\n\t\t\t\t\t// If width, density and future-compat-h are not all absent, then let error\n\t\t\t\t\t// be yes.\n\t\t\t\t\tif (w || d || h) {\n\t\t\t\t\t\tpError = true;\n\t\t\t\t\t}\n\n\t\t\t\t\t// Apply the rules for parsing floating-point number values to the descriptor.\n\t\t\t\t\t// If the result is less than zero, let error be yes. Otherwise, let density\n\t\t\t\t\t// be the result.\n\t\t\t\t\tif (floatVal < 0) {\n\t\t\t\t\t\tpError = true;\n\t\t\t\t\t} else {\n\t\t\t\t\t\td = floatVal;\n\t\t\t\t\t}\n\n\t\t\t\t\t// If the descriptor consists of a valid non-negative integer followed by\n\t\t\t\t\t// a U+0068 LATIN SMALL LETTER H character\n\t\t\t\t} else if (regexNonNegativeInteger.test(value) && lastChar === \"h\") {\n\n\t\t\t\t\t// If height and density are not both absent, then let error be yes.\n\t\t\t\t\tif (h || d) {\n\t\t\t\t\t\tpError = true;\n\t\t\t\t\t}\n\n\t\t\t\t\t// Apply the rules for parsing non-negative integers to the descriptor.\n\t\t\t\t\t// If the result is zero, let error be yes. Otherwise, let future-compat-h\n\t\t\t\t\t// be the result.\n\t\t\t\t\tif (intVal === 0) {\n\t\t\t\t\t\tpError = true;\n\t\t\t\t\t} else {\n\t\t\t\t\t\th = intVal;\n\t\t\t\t\t}\n\n\t\t\t\t\t// Anything else, Let error be yes.\n\t\t\t\t} else {\n\t\t\t\t\tpError = true;\n\t\t\t\t}\n\t\t\t} // (close step 13 for loop)\n\n\t\t\t// 15. If error is still no, then append a new image source to candidates whose\n\t\t\t// URL is url, associated with a width width if not absent and a pixel\n\t\t\t// density density if not absent. Otherwise, there is a parse error.\n\t\t\tif (!pError) {\n\t\t\t\tcandidate.url = url;\n\n\t\t\t\tif (w) {\n\t\t\t\t\tcandidate.w = w;\n\t\t\t\t}\n\t\t\t\tif (d) {\n\t\t\t\t\tcandidate.d = d;\n\t\t\t\t}\n\t\t\t\tif (h) {\n\t\t\t\t\tcandidate.h = h;\n\t\t\t\t}\n\t\t\t\tif (!h && !d && !w) {\n\t\t\t\t\tcandidate.d = 1;\n\t\t\t\t}\n\t\t\t\tif (candidate.d === 1) {\n\t\t\t\t\tset.has1x = true;\n\t\t\t\t}\n\t\t\t\tcandidate.set = set;\n\n\t\t\t\tcandidates.push(candidate);\n\t\t\t}\n\t\t} // (close parseDescriptors fn)\n\n\t\t/**\n  * Tokenizes descriptor properties prior to parsing\n  * Returns undefined.\n  * (Again, this fn is defined before it is used, in order to pass JSHINT.\n  * Unfortunately this breaks the logical sequencing of the spec comments. :/ )\n  */\n\t\tfunction tokenize() {\n\n\t\t\t// 8.1. Descriptor tokeniser: Skip whitespace\n\t\t\tcollectCharacters(regexLeadingSpaces);\n\n\t\t\t// 8.2. Let current descriptor be the empty string.\n\t\t\tcurrentDescriptor = \"\";\n\n\t\t\t// 8.3. Let state be in descriptor.\n\t\t\tstate = \"in descriptor\";\n\n\t\t\twhile (true) {\n\n\t\t\t\t// 8.4. Let c be the character at position.\n\t\t\t\tc = input.charAt(pos);\n\n\t\t\t\t//  Do the following depending on the value of state.\n\t\t\t\t//  For the purpose of this step, \"EOF\" is a special character representing\n\t\t\t\t//  that position is past the end of input.\n\n\t\t\t\t// In descriptor\n\t\t\t\tif (state === \"in descriptor\") {\n\t\t\t\t\t// Do the following, depending on the value of c:\n\n\t\t\t\t\t// Space character\n\t\t\t\t\t// If current descriptor is not empty, append current descriptor to\n\t\t\t\t\t// descriptors and let current descriptor be the empty string.\n\t\t\t\t\t// Set state to after descriptor.\n\t\t\t\t\tif (isSpace(c)) {\n\t\t\t\t\t\tif (currentDescriptor) {\n\t\t\t\t\t\t\tdescriptors.push(currentDescriptor);\n\t\t\t\t\t\t\tcurrentDescriptor = \"\";\n\t\t\t\t\t\t\tstate = \"after descriptor\";\n\t\t\t\t\t\t}\n\n\t\t\t\t\t\t// U+002C COMMA (,)\n\t\t\t\t\t\t// Advance position to the next character in input. If current descriptor\n\t\t\t\t\t\t// is not empty, append current descriptor to descriptors. Jump to the step\n\t\t\t\t\t\t// labeled descriptor parser.\n\t\t\t\t\t} else if (c === \",\") {\n\t\t\t\t\t\tpos += 1;\n\t\t\t\t\t\tif (currentDescriptor) {\n\t\t\t\t\t\t\tdescriptors.push(currentDescriptor);\n\t\t\t\t\t\t}\n\t\t\t\t\t\tparseDescriptors();\n\t\t\t\t\t\treturn;\n\n\t\t\t\t\t\t// U+0028 LEFT PARENTHESIS (()\n\t\t\t\t\t\t// Append c to current descriptor. Set state to in parens.\n\t\t\t\t\t} else if (c === \"(\") {\n\t\t\t\t\t\tcurrentDescriptor = currentDescriptor + c;\n\t\t\t\t\t\tstate = \"in parens\";\n\n\t\t\t\t\t\t// EOF\n\t\t\t\t\t\t// If current descriptor is not empty, append current descriptor to\n\t\t\t\t\t\t// descriptors. Jump to the step labeled descriptor parser.\n\t\t\t\t\t} else if (c === \"\") {\n\t\t\t\t\t\tif (currentDescriptor) {\n\t\t\t\t\t\t\tdescriptors.push(currentDescriptor);\n\t\t\t\t\t\t}\n\t\t\t\t\t\tparseDescriptors();\n\t\t\t\t\t\treturn;\n\n\t\t\t\t\t\t// Anything else\n\t\t\t\t\t\t// Append c to current descriptor.\n\t\t\t\t\t} else {\n\t\t\t\t\t\tcurrentDescriptor = currentDescriptor + c;\n\t\t\t\t\t}\n\t\t\t\t\t// (end \"in descriptor\"\n\n\t\t\t\t\t// In parens\n\t\t\t\t} else if (state === \"in parens\") {\n\n\t\t\t\t\t// U+0029 RIGHT PARENTHESIS ())\n\t\t\t\t\t// Append c to current descriptor. Set state to in descriptor.\n\t\t\t\t\tif (c === \")\") {\n\t\t\t\t\t\tcurrentDescriptor = currentDescriptor + c;\n\t\t\t\t\t\tstate = \"in descriptor\";\n\n\t\t\t\t\t\t// EOF\n\t\t\t\t\t\t// Append current descriptor to descriptors. Jump to the step labeled\n\t\t\t\t\t\t// descriptor parser.\n\t\t\t\t\t} else if (c === \"\") {\n\t\t\t\t\t\tdescriptors.push(currentDescriptor);\n\t\t\t\t\t\tparseDescriptors();\n\t\t\t\t\t\treturn;\n\n\t\t\t\t\t\t// Anything else\n\t\t\t\t\t\t// Append c to current descriptor.\n\t\t\t\t\t} else {\n\t\t\t\t\t\tcurrentDescriptor = currentDescriptor + c;\n\t\t\t\t\t}\n\n\t\t\t\t\t// After descriptor\n\t\t\t\t} else if (state === \"after descriptor\") {\n\n\t\t\t\t\t// Do the following, depending on the value of c:\n\t\t\t\t\t// Space character: Stay in this state.\n\t\t\t\t\tif (isSpace(c)) {\n\n\t\t\t\t\t\t// EOF: Jump to the step labeled descriptor parser.\n\t\t\t\t\t} else if (c === \"\") {\n\t\t\t\t\t\tparseDescriptors();\n\t\t\t\t\t\treturn;\n\n\t\t\t\t\t\t// Anything else\n\t\t\t\t\t\t// Set state to in descriptor. Set position to the previous character in input.\n\t\t\t\t\t} else {\n\t\t\t\t\t\tstate = \"in descriptor\";\n\t\t\t\t\t\tpos -= 1;\n\t\t\t\t\t}\n\t\t\t\t}\n\n\t\t\t\t// Advance position to the next character in input.\n\t\t\t\tpos += 1;\n\n\t\t\t\t// Repeat this step.\n\t\t\t} // (close while true loop)\n\t\t}\n\n\t\t// 4. Splitting loop: Collect a sequence of characters that are space\n\t\t//    characters or U+002C COMMA characters. If any U+002C COMMA characters\n\t\t//    were collected, that is a parse error.\n\t\twhile (true) {\n\t\t\tcollectCharacters(regexLeadingCommasOrSpaces);\n\n\t\t\t// 5. If position is past the end of input, return candidates and abort these steps.\n\t\t\tif (pos >= inputLength) {\n\t\t\t\treturn candidates; // (we're done, this is the sole return path)\n\t\t\t}\n\n\t\t\t// 6. Collect a sequence of characters that are not space characters,\n\t\t\t//    and let that be url.\n\t\t\turl = collectCharacters(regexLeadingNotSpaces);\n\n\t\t\t// 7. Let descriptors be a new empty list.\n\t\t\tdescriptors = [];\n\n\t\t\t// 8. If url ends with a U+002C COMMA character (,), follow these substeps:\n\t\t\t//\t\t(1). Remove all trailing U+002C COMMA characters from url. If this removed\n\t\t\t//         more than one character, that is a parse error.\n\t\t\tif (url.slice(-1) === \",\") {\n\t\t\t\turl = url.replace(regexTrailingCommas, \"\");\n\t\t\t\t// (Jump ahead to step 9 to skip tokenization and just push the candidate).\n\t\t\t\tparseDescriptors();\n\n\t\t\t\t//\tOtherwise, follow these substeps:\n\t\t\t} else {\n\t\t\t\ttokenize();\n\t\t\t} // (close else of step 8)\n\n\t\t\t// 16. Return to the step labeled splitting loop.\n\t\t} // (Close of big while loop.)\n\t}\n\n\t/*\n  * Sizes Parser\n  *\n  * By Alex Bell |  MIT License\n  *\n  * Non-strict but accurate and lightweight JS Parser for the string value <img sizes=\"here\">\n  *\n  * Reference algorithm at:\n  * https://html.spec.whatwg.org/multipage/embedded-content.html#parse-a-sizes-attribute\n  *\n  * Most comments are copied in directly from the spec\n  * (except for comments in parens).\n  *\n  * Grammar is:\n  * <source-size-list> = <source-size># [ , <source-size-value> ]? | <source-size-value>\n  * <source-size> = <media-condition> <source-size-value>\n  * <source-size-value> = <length>\n  * http://www.w3.org/html/wg/drafts/html/master/embedded-content.html#attr-img-sizes\n  *\n  * E.g. \"(max-width: 30em) 100vw, (max-width: 50em) 70vw, 100vw\"\n  * or \"(min-width: 30em), calc(30vw - 15px)\" or just \"30vw\"\n  *\n  * Returns the first valid <css-length> with a media condition that evaluates to true,\n  * or \"100vw\" if all valid media conditions evaluate to false.\n  *\n  */\n\n\tfunction parseSizes(strValue) {\n\n\t\t// (Percentage CSS lengths are not allowed in this case, to avoid confusion:\n\t\t// https://html.spec.whatwg.org/multipage/embedded-content.html#valid-source-size-list\n\t\t// CSS allows a single optional plus or minus sign:\n\t\t// http://www.w3.org/TR/CSS2/syndata.html#numbers\n\t\t// CSS is ASCII case-insensitive:\n\t\t// http://www.w3.org/TR/CSS2/syndata.html#characters )\n\t\t// Spec allows exponential notation for <number> type:\n\t\t// http://dev.w3.org/csswg/css-values/#numbers\n\t\tvar regexCssLengthWithUnits = /^(?:[+-]?[0-9]+|[0-9]*\\.[0-9]+)(?:[eE][+-]?[0-9]+)?(?:ch|cm|em|ex|in|mm|pc|pt|px|rem|vh|vmin|vmax|vw)$/i;\n\n\t\t// (This is a quick and lenient test. Because of optional unlimited-depth internal\n\t\t// grouping parens and strict spacing rules, this could get very complicated.)\n\t\tvar regexCssCalc = /^calc\\((?:[0-9a-z \\.\\+\\-\\*\\/\\(\\)]+)\\)$/i;\n\n\t\tvar i;\n\t\tvar unparsedSizesList;\n\t\tvar unparsedSizesListLength;\n\t\tvar unparsedSize;\n\t\tvar lastComponentValue;\n\t\tvar size;\n\n\t\t// UTILITY FUNCTIONS\n\n\t\t//  (Toy CSS parser. The goals here are:\n\t\t//  1) expansive test coverage without the weight of a full CSS parser.\n\t\t//  2) Avoiding regex wherever convenient.\n\t\t//  Quick tests: http://jsfiddle.net/gtntL4gr/3/\n\t\t//  Returns an array of arrays.)\n\t\tfunction parseComponentValues(str) {\n\t\t\tvar chrctr;\n\t\t\tvar component = \"\";\n\t\t\tvar componentArray = [];\n\t\t\tvar listArray = [];\n\t\t\tvar parenDepth = 0;\n\t\t\tvar pos = 0;\n\t\t\tvar inComment = false;\n\n\t\t\tfunction pushComponent() {\n\t\t\t\tif (component) {\n\t\t\t\t\tcomponentArray.push(component);\n\t\t\t\t\tcomponent = \"\";\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction pushComponentArray() {\n\t\t\t\tif (componentArray[0]) {\n\t\t\t\t\tlistArray.push(componentArray);\n\t\t\t\t\tcomponentArray = [];\n\t\t\t\t}\n\t\t\t}\n\n\t\t\t// (Loop forwards from the beginning of the string.)\n\t\t\twhile (true) {\n\t\t\t\tchrctr = str.charAt(pos);\n\n\t\t\t\tif (chrctr === \"\") {\n\t\t\t\t\t// ( End of string reached.)\n\t\t\t\t\tpushComponent();\n\t\t\t\t\tpushComponentArray();\n\t\t\t\t\treturn listArray;\n\t\t\t\t} else if (inComment) {\n\t\t\t\t\tif (chrctr === \"*\" && str[pos + 1] === \"/\") {\n\t\t\t\t\t\t// (At end of a comment.)\n\t\t\t\t\t\tinComment = false;\n\t\t\t\t\t\tpos += 2;\n\t\t\t\t\t\tpushComponent();\n\t\t\t\t\t\tcontinue;\n\t\t\t\t\t} else {\n\t\t\t\t\t\tpos += 1; // (Skip all characters inside comments.)\n\t\t\t\t\t\tcontinue;\n\t\t\t\t\t}\n\t\t\t\t} else if (isSpace(chrctr)) {\n\t\t\t\t\t// (If previous character in loop was also a space, or if\n\t\t\t\t\t// at the beginning of the string, do not add space char to\n\t\t\t\t\t// component.)\n\t\t\t\t\tif (str.charAt(pos - 1) && isSpace(str.charAt(pos - 1)) || !component) {\n\t\t\t\t\t\tpos += 1;\n\t\t\t\t\t\tcontinue;\n\t\t\t\t\t} else if (parenDepth === 0) {\n\t\t\t\t\t\tpushComponent();\n\t\t\t\t\t\tpos += 1;\n\t\t\t\t\t\tcontinue;\n\t\t\t\t\t} else {\n\t\t\t\t\t\t// (Replace any space character with a plain space for legibility.)\n\t\t\t\t\t\tchrctr = \" \";\n\t\t\t\t\t}\n\t\t\t\t} else if (chrctr === \"(\") {\n\t\t\t\t\tparenDepth += 1;\n\t\t\t\t} else if (chrctr === \")\") {\n\t\t\t\t\tparenDepth -= 1;\n\t\t\t\t} else if (chrctr === \",\") {\n\t\t\t\t\tpushComponent();\n\t\t\t\t\tpushComponentArray();\n\t\t\t\t\tpos += 1;\n\t\t\t\t\tcontinue;\n\t\t\t\t} else if (chrctr === \"/\" && str.charAt(pos + 1) === \"*\") {\n\t\t\t\t\tinComment = true;\n\t\t\t\t\tpos += 2;\n\t\t\t\t\tcontinue;\n\t\t\t\t}\n\n\t\t\t\tcomponent = component + chrctr;\n\t\t\t\tpos += 1;\n\t\t\t}\n\t\t}\n\n\t\tfunction isValidNonNegativeSourceSizeValue(s) {\n\t\t\tif (regexCssLengthWithUnits.test(s) && parseFloat(s) >= 0) {\n\t\t\t\treturn true;\n\t\t\t}\n\t\t\tif (regexCssCalc.test(s)) {\n\t\t\t\treturn true;\n\t\t\t}\n\t\t\t// ( http://www.w3.org/TR/CSS2/syndata.html#numbers says:\n\t\t\t// \"-0 is equivalent to 0 and is not a negative number.\" which means that\n\t\t\t// unitless zero and unitless negative zero must be accepted as special cases.)\n\t\t\tif (s === \"0\" || s === \"-0\" || s === \"+0\") {\n\t\t\t\treturn true;\n\t\t\t}\n\t\t\treturn false;\n\t\t}\n\n\t\t// When asked to parse a sizes attribute from an element, parse a\n\t\t// comma-separated list of component values from the value of the element's\n\t\t// sizes attribute (or the empty string, if the attribute is absent), and let\n\t\t// unparsed sizes list be the result.\n\t\t// http://dev.w3.org/csswg/css-syntax/#parse-comma-separated-list-of-component-values\n\n\t\tunparsedSizesList = parseComponentValues(strValue);\n\t\tunparsedSizesListLength = unparsedSizesList.length;\n\n\t\t// For each unparsed size in unparsed sizes list:\n\t\tfor (i = 0; i < unparsedSizesListLength; i++) {\n\t\t\tunparsedSize = unparsedSizesList[i];\n\n\t\t\t// 1. Remove all consecutive <whitespace-token>s from the end of unparsed size.\n\t\t\t// ( parseComponentValues() already omits spaces outside of parens. )\n\n\t\t\t// If unparsed size is now empty, that is a parse error; continue to the next\n\t\t\t// iteration of this algorithm.\n\t\t\t// ( parseComponentValues() won't push an empty array. )\n\n\t\t\t// 2. If the last component value in unparsed size is a valid non-negative\n\t\t\t// <source-size-value>, let size be its value and remove the component value\n\t\t\t// from unparsed size. Any CSS function other than the calc() function is\n\t\t\t// invalid. Otherwise, there is a parse error; continue to the next iteration\n\t\t\t// of this algorithm.\n\t\t\t// http://dev.w3.org/csswg/css-syntax/#parse-component-value\n\t\t\tlastComponentValue = unparsedSize[unparsedSize.length - 1];\n\n\t\t\tif (isValidNonNegativeSourceSizeValue(lastComponentValue)) {\n\t\t\t\tsize = lastComponentValue;\n\t\t\t\tunparsedSize.pop();\n\t\t\t} else {\n\t\t\t\tcontinue;\n\t\t\t}\n\n\t\t\t// 3. Remove all consecutive <whitespace-token>s from the end of unparsed\n\t\t\t// size. If unparsed size is now empty, return size and exit this algorithm.\n\t\t\t// If this was not the last item in unparsed sizes list, that is a parse error.\n\t\t\tif (unparsedSize.length === 0) {\n\t\t\t\treturn size;\n\t\t\t}\n\n\t\t\t// 4. Parse the remaining component values in unparsed size as a\n\t\t\t// <media-condition>. If it does not parse correctly, or it does parse\n\t\t\t// correctly but the <media-condition> evaluates to false, continue to the\n\t\t\t// next iteration of this algorithm.\n\t\t\t// (Parsing all possible compound media conditions in JS is heavy, complicated,\n\t\t\t// and the payoff is unclear. Is there ever an situation where the\n\t\t\t// media condition parses incorrectly but still somehow evaluates to true?\n\t\t\t// Can we just rely on the browser/polyfill to do it?)\n\t\t\tunparsedSize = unparsedSize.join(\" \");\n\t\t\tif (!pf.matchesMedia(unparsedSize)) {\n\t\t\t\tcontinue;\n\t\t\t}\n\n\t\t\t// 5. Return size and exit this algorithm.\n\t\t\treturn size;\n\t\t}\n\n\t\t// If the above algorithm exhausts unparsed sizes list without returning a\n\t\t// size value, return 100vw.\n\t\treturn \"100vw\";\n\t}\n\n\t// namespace\n\tpf.ns = (\"pf\" + new Date().getTime()).substr(0, 9);\n\n\t// srcset support test\n\tpf.supSrcset = \"srcset\" in image;\n\tpf.supSizes = \"sizes\" in image;\n\tpf.supPicture = !!window.HTMLPictureElement;\n\n\t// UC browser does claim to support srcset and picture, but not sizes,\n\t// this extended test reveals the browser does support nothing\n\tif (pf.supSrcset && pf.supPicture && !pf.supSizes) {\n\t\t(function (image2) {\n\t\t\timage.srcset = \"data:,a\";\n\t\t\timage2.src = \"data:,a\";\n\t\t\tpf.supSrcset = image.complete === image2.complete;\n\t\t\tpf.supPicture = pf.supSrcset && pf.supPicture;\n\t\t})(document.createElement(\"img\"));\n\t}\n\n\t// Safari9 has basic support for sizes, but does't expose the `sizes` idl attribute\n\tif (pf.supSrcset && !pf.supSizes) {\n\n\t\t(function () {\n\t\t\tvar width2 = \"data:image/gif;base64,R0lGODlhAgABAPAAAP///wAAACH5BAAAAAAALAAAAAACAAEAAAICBAoAOw==\";\n\t\t\tvar width1 = \"data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==\";\n\t\t\tvar img = document.createElement(\"img\");\n\t\t\tvar test = function test() {\n\t\t\t\tvar width = img.width;\n\n\t\t\t\tif (width === 2) {\n\t\t\t\t\tpf.supSizes = true;\n\t\t\t\t}\n\n\t\t\t\talwaysCheckWDescriptor = pf.supSrcset && !pf.supSizes;\n\n\t\t\t\tisSupportTestReady = true;\n\t\t\t\t// force async\n\t\t\t\tsetTimeout(picturefill);\n\t\t\t};\n\n\t\t\timg.onload = test;\n\t\t\timg.onerror = test;\n\t\t\timg.setAttribute(\"sizes\", \"9px\");\n\n\t\t\timg.srcset = width1 + \" 1w,\" + width2 + \" 9w\";\n\t\t\timg.src = width1;\n\t\t})();\n\t} else {\n\t\tisSupportTestReady = true;\n\t}\n\n\t// using pf.qsa instead of dom traversing does scale much better,\n\t// especially on sites mixing responsive and non-responsive images\n\tpf.selShort = \"picture>img,img[srcset]\";\n\tpf.sel = pf.selShort;\n\tpf.cfg = cfg;\n\n\t/**\n  * Shortcut property for `devicePixelRatio` ( for easy overriding in tests )\n  */\n\tpf.DPR = DPR || 1;\n\tpf.u = units;\n\n\t// container of supported mime types that one might need to qualify before using\n\tpf.types = types;\n\n\tpf.setSize = noop;\n\n\t/**\n  * Gets a string and returns the absolute URL\n  * @param src\n  * @returns {String} absolute URL\n  */\n\n\tpf.makeUrl = memoize(function (src) {\n\t\tanchor.href = src;\n\t\treturn anchor.href;\n\t});\n\n\t/**\n  * Gets a DOM element or document and a selctor and returns the found matches\n  * Can be extended with jQuery/Sizzle for IE7 support\n  * @param context\n  * @param sel\n  * @returns {NodeList|Array}\n  */\n\tpf.qsa = function (context, sel) {\n\t\treturn \"querySelector\" in context ? context.querySelectorAll(sel) : [];\n\t};\n\n\t/**\n  * Shortcut method for matchMedia ( for easy overriding in tests )\n  * wether native or pf.mMQ is used will be decided lazy on first call\n  * @returns {boolean}\n  */\n\tpf.matchesMedia = function () {\n\t\tif (window.matchMedia && (matchMedia(\"(min-width: 0.1em)\") || {}).matches) {\n\t\t\tpf.matchesMedia = function (media) {\n\t\t\t\treturn !media || matchMedia(media).matches;\n\t\t\t};\n\t\t} else {\n\t\t\tpf.matchesMedia = pf.mMQ;\n\t\t}\n\n\t\treturn pf.matchesMedia.apply(this, arguments);\n\t};\n\n\t/**\n  * A simplified matchMedia implementation for IE8 and IE9\n  * handles only min-width/max-width with px or em values\n  * @param media\n  * @returns {boolean}\n  */\n\tpf.mMQ = function (media) {\n\t\treturn media ? evalCSS(media) : true;\n\t};\n\n\t/**\n  * Returns the calculated length in css pixel from the given sourceSizeValue\n  * http://dev.w3.org/csswg/css-values-3/#length-value\n  * intended Spec mismatches:\n  * * Does not check for invalid use of CSS functions\n  * * Does handle a computed length of 0 the same as a negative and therefore invalid value\n  * @param sourceSizeValue\n  * @returns {Number}\n  */\n\tpf.calcLength = function (sourceSizeValue) {\n\n\t\tvar value = evalCSS(sourceSizeValue, true) || false;\n\t\tif (value < 0) {\n\t\t\tvalue = false;\n\t\t}\n\n\t\treturn value;\n\t};\n\n\t/**\n  * Takes a type string and checks if its supported\n  */\n\n\tpf.supportsType = function (type) {\n\t\treturn type ? types[type] : true;\n\t};\n\n\t/**\n  * Parses a sourceSize into mediaCondition (media) and sourceSizeValue (length)\n  * @param sourceSizeStr\n  * @returns {*}\n  */\n\tpf.parseSize = memoize(function (sourceSizeStr) {\n\t\tvar match = (sourceSizeStr || \"\").match(regSize);\n\t\treturn {\n\t\t\tmedia: match && match[1],\n\t\t\tlength: match && match[2]\n\t\t};\n\t});\n\n\tpf.parseSet = function (set) {\n\t\tif (!set.cands) {\n\t\t\tset.cands = parseSrcset(set.srcset, set);\n\t\t}\n\t\treturn set.cands;\n\t};\n\n\t/**\n  * returns 1em in css px for html/body default size\n  * function taken from respondjs\n  * @returns {*|number}\n  */\n\tpf.getEmValue = function () {\n\t\tvar body;\n\t\tif (!eminpx && (body = document.body)) {\n\t\t\tvar div = document.createElement(\"div\"),\n\t\t\t    originalHTMLCSS = docElem.style.cssText,\n\t\t\t    originalBodyCSS = body.style.cssText;\n\n\t\t\tdiv.style.cssText = baseStyle;\n\n\t\t\t// 1em in a media query is the value of the default font size of the browser\n\t\t\t// reset docElem and body to ensure the correct value is returned\n\t\t\tdocElem.style.cssText = fsCss;\n\t\t\tbody.style.cssText = fsCss;\n\n\t\t\tbody.appendChild(div);\n\t\t\teminpx = div.offsetWidth;\n\t\t\tbody.removeChild(div);\n\n\t\t\t//also update eminpx before returning\n\t\t\teminpx = parseFloat(eminpx, 10);\n\n\t\t\t// restore the original values\n\t\t\tdocElem.style.cssText = originalHTMLCSS;\n\t\t\tbody.style.cssText = originalBodyCSS;\n\t\t}\n\t\treturn eminpx || 16;\n\t};\n\n\t/**\n  * Takes a string of sizes and returns the width in pixels as a number\n  */\n\tpf.calcListLength = function (sourceSizeListStr) {\n\t\t// Split up source size list, ie ( max-width: 30em ) 100%, ( max-width: 50em ) 50%, 33%\n\t\t//\n\t\t//                           or (min-width:30em) calc(30% - 15px)\n\t\tif (!(sourceSizeListStr in sizeLengthCache) || cfg.uT) {\n\t\t\tvar winningLength = pf.calcLength(parseSizes(sourceSizeListStr));\n\n\t\t\tsizeLengthCache[sourceSizeListStr] = !winningLength ? units.width : winningLength;\n\t\t}\n\n\t\treturn sizeLengthCache[sourceSizeListStr];\n\t};\n\n\t/**\n  * Takes a candidate object with a srcset property in the form of url/\n  * ex. \"images/pic-medium.png 1x, images/pic-medium-2x.png 2x\" or\n  *     \"images/pic-medium.png 400w, images/pic-medium-2x.png 800w\" or\n  *     \"images/pic-small.png\"\n  * Get an array of image candidates in the form of\n  *      {url: \"/foo/bar.png\", resolution: 1}\n  * where resolution is http://dev.w3.org/csswg/css-values-3/#resolution-value\n  * If sizes is specified, res is calculated\n  */\n\tpf.setRes = function (set) {\n\t\tvar candidates;\n\t\tif (set) {\n\n\t\t\tcandidates = pf.parseSet(set);\n\n\t\t\tfor (var i = 0, len = candidates.length; i < len; i++) {\n\t\t\t\tsetResolution(candidates[i], set.sizes);\n\t\t\t}\n\t\t}\n\t\treturn candidates;\n\t};\n\n\tpf.setRes.res = setResolution;\n\n\tpf.applySetCandidate = function (candidates, img) {\n\t\tif (!candidates.length) {\n\t\t\treturn;\n\t\t}\n\t\tvar candidate, i, j, length, bestCandidate, curSrc, curCan, candidateSrc, abortCurSrc;\n\n\t\tvar imageData = img[pf.ns];\n\t\tvar dpr = pf.DPR;\n\n\t\tcurSrc = imageData.curSrc || img[curSrcProp];\n\n\t\tcurCan = imageData.curCan || setSrcToCur(img, curSrc, candidates[0].set);\n\n\t\t// if we have a current source, we might either become lazy or give this source some advantage\n\t\tif (curCan && curCan.set === candidates[0].set) {\n\n\t\t\t// if browser can abort image request and the image has a higher pixel density than needed\n\t\t\t// and this image isn't downloaded yet, we skip next part and try to save bandwidth\n\t\t\tabortCurSrc = supportAbort && !img.complete && curCan.res - 0.1 > dpr;\n\n\t\t\tif (!abortCurSrc) {\n\t\t\t\tcurCan.cached = true;\n\n\t\t\t\t// if current candidate is \"best\", \"better\" or \"okay\",\n\t\t\t\t// set it to bestCandidate\n\t\t\t\tif (curCan.res >= dpr) {\n\t\t\t\t\tbestCandidate = curCan;\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\n\t\tif (!bestCandidate) {\n\n\t\t\tcandidates.sort(ascendingSort);\n\n\t\t\tlength = candidates.length;\n\t\t\tbestCandidate = candidates[length - 1];\n\n\t\t\tfor (i = 0; i < length; i++) {\n\t\t\t\tcandidate = candidates[i];\n\t\t\t\tif (candidate.res >= dpr) {\n\t\t\t\t\tj = i - 1;\n\n\t\t\t\t\t// we have found the perfect candidate,\n\t\t\t\t\t// but let's improve this a little bit with some assumptions ;-)\n\t\t\t\t\tif (candidates[j] && (abortCurSrc || curSrc !== pf.makeUrl(candidate.url)) && chooseLowRes(candidates[j].res, candidate.res, dpr, candidates[j].cached)) {\n\n\t\t\t\t\t\tbestCandidate = candidates[j];\n\t\t\t\t\t} else {\n\t\t\t\t\t\tbestCandidate = candidate;\n\t\t\t\t\t}\n\t\t\t\t\tbreak;\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\n\t\tif (bestCandidate) {\n\n\t\t\tcandidateSrc = pf.makeUrl(bestCandidate.url);\n\n\t\t\timageData.curSrc = candidateSrc;\n\t\t\timageData.curCan = bestCandidate;\n\n\t\t\tif (candidateSrc !== curSrc) {\n\t\t\t\tpf.setSrc(img, bestCandidate);\n\t\t\t}\n\t\t\tpf.setSize(img);\n\t\t}\n\t};\n\n\tpf.setSrc = function (img, bestCandidate) {\n\t\tvar origWidth;\n\t\timg.src = bestCandidate.url;\n\n\t\t// although this is a specific Safari issue, we don't want to take too much different code paths\n\t\tif (bestCandidate.set.type === \"image/svg+xml\") {\n\t\t\torigWidth = img.style.width;\n\t\t\timg.style.width = img.offsetWidth + 1 + \"px\";\n\n\t\t\t// next line only should trigger a repaint\n\t\t\t// if... is only done to trick dead code removal\n\t\t\tif (img.offsetWidth + 1) {\n\t\t\t\timg.style.width = origWidth;\n\t\t\t}\n\t\t}\n\t};\n\n\tpf.getSet = function (img) {\n\t\tvar i, set, supportsType;\n\t\tvar match = false;\n\t\tvar sets = img[pf.ns].sets;\n\n\t\tfor (i = 0; i < sets.length && !match; i++) {\n\t\t\tset = sets[i];\n\n\t\t\tif (!set.srcset || !pf.matchesMedia(set.media) || !(supportsType = pf.supportsType(set.type))) {\n\t\t\t\tcontinue;\n\t\t\t}\n\n\t\t\tif (supportsType === \"pending\") {\n\t\t\t\tset = supportsType;\n\t\t\t}\n\n\t\t\tmatch = set;\n\t\t\tbreak;\n\t\t}\n\n\t\treturn match;\n\t};\n\n\tpf.parseSets = function (element, parent, options) {\n\t\tvar srcsetAttribute, imageSet, isWDescripor, srcsetParsed;\n\n\t\tvar hasPicture = parent && parent.nodeName.toUpperCase() === \"PICTURE\";\n\t\tvar imageData = element[pf.ns];\n\n\t\tif (imageData.src === undefined || options.src) {\n\t\t\timageData.src = getImgAttr.call(element, \"src\");\n\t\t\tif (imageData.src) {\n\t\t\t\tsetImgAttr.call(element, srcAttr, imageData.src);\n\t\t\t} else {\n\t\t\t\tremoveImgAttr.call(element, srcAttr);\n\t\t\t}\n\t\t}\n\n\t\tif (imageData.srcset === undefined || options.srcset || !pf.supSrcset || element.srcset) {\n\t\t\tsrcsetAttribute = getImgAttr.call(element, \"srcset\");\n\t\t\timageData.srcset = srcsetAttribute;\n\t\t\tsrcsetParsed = true;\n\t\t}\n\n\t\timageData.sets = [];\n\n\t\tif (hasPicture) {\n\t\t\timageData.pic = true;\n\t\t\tgetAllSourceElements(parent, imageData.sets);\n\t\t}\n\n\t\tif (imageData.srcset) {\n\t\t\timageSet = {\n\t\t\t\tsrcset: imageData.srcset,\n\t\t\t\tsizes: getImgAttr.call(element, \"sizes\")\n\t\t\t};\n\n\t\t\timageData.sets.push(imageSet);\n\n\t\t\tisWDescripor = (alwaysCheckWDescriptor || imageData.src) && regWDesc.test(imageData.srcset || \"\");\n\n\t\t\t// add normal src as candidate, if source has no w descriptor\n\t\t\tif (!isWDescripor && imageData.src && !getCandidateForSrc(imageData.src, imageSet) && !imageSet.has1x) {\n\t\t\t\timageSet.srcset += \", \" + imageData.src;\n\t\t\t\timageSet.cands.push({\n\t\t\t\t\turl: imageData.src,\n\t\t\t\t\td: 1,\n\t\t\t\t\tset: imageSet\n\t\t\t\t});\n\t\t\t}\n\t\t} else if (imageData.src) {\n\t\t\timageData.sets.push({\n\t\t\t\tsrcset: imageData.src,\n\t\t\t\tsizes: null\n\t\t\t});\n\t\t}\n\n\t\timageData.curCan = null;\n\t\timageData.curSrc = undefined;\n\n\t\t// if img has picture or the srcset was removed or has a srcset and does not support srcset at all\n\t\t// or has a w descriptor (and does not support sizes) set support to false to evaluate\n\t\timageData.supported = !(hasPicture || imageSet && !pf.supSrcset || isWDescripor && !pf.supSizes);\n\n\t\tif (srcsetParsed && pf.supSrcset && !imageData.supported) {\n\t\t\tif (srcsetAttribute) {\n\t\t\t\tsetImgAttr.call(element, srcsetAttr, srcsetAttribute);\n\t\t\t\telement.srcset = \"\";\n\t\t\t} else {\n\t\t\t\tremoveImgAttr.call(element, srcsetAttr);\n\t\t\t}\n\t\t}\n\n\t\tif (imageData.supported && !imageData.srcset && (!imageData.src && element.src || element.src !== pf.makeUrl(imageData.src))) {\n\t\t\tif (imageData.src === null) {\n\t\t\t\telement.removeAttribute(\"src\");\n\t\t\t} else {\n\t\t\t\telement.src = imageData.src;\n\t\t\t}\n\t\t}\n\n\t\timageData.parsed = true;\n\t};\n\n\tpf.fillImg = function (element, options) {\n\t\tvar imageData;\n\t\tvar extreme = options.reselect || options.reevaluate;\n\n\t\t// expando for caching data on the img\n\t\tif (!element[pf.ns]) {\n\t\t\telement[pf.ns] = {};\n\t\t}\n\n\t\timageData = element[pf.ns];\n\n\t\t// if the element has already been evaluated, skip it\n\t\t// unless `options.reevaluate` is set to true ( this, for example,\n\t\t// is set to true when running `picturefill` on `resize` ).\n\t\tif (!extreme && imageData.evaled === evalId) {\n\t\t\treturn;\n\t\t}\n\n\t\tif (!imageData.parsed || options.reevaluate) {\n\t\t\tpf.parseSets(element, element.parentNode, options);\n\t\t}\n\n\t\tif (!imageData.supported) {\n\t\t\tapplyBestCandidate(element);\n\t\t} else {\n\t\t\timageData.evaled = evalId;\n\t\t}\n\t};\n\n\tpf.setupRun = function () {\n\t\tif (!alreadyRun || isVwDirty || DPR !== window.devicePixelRatio) {\n\t\t\tupdateMetrics();\n\t\t}\n\t};\n\n\t// If picture is supported, well, that's awesome.\n\tif (pf.supPicture) {\n\t\tpicturefill = noop;\n\t\tpf.fillImg = noop;\n\t} else {\n\n\t\t// Set up picture polyfill by polling the document\n\t\t(function () {\n\t\t\tvar isDomReady;\n\t\t\tvar regReady = window.attachEvent ? /d$|^c/ : /d$|^c|^i/;\n\n\t\t\tvar run = function run() {\n\t\t\t\tvar readyState = document.readyState || \"\";\n\n\t\t\t\ttimerId = setTimeout(run, readyState === \"loading\" ? 200 : 999);\n\t\t\t\tif (document.body) {\n\t\t\t\t\tpf.fillImgs();\n\t\t\t\t\tisDomReady = isDomReady || regReady.test(readyState);\n\t\t\t\t\tif (isDomReady) {\n\t\t\t\t\t\tclearTimeout(timerId);\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t};\n\n\t\t\tvar timerId = setTimeout(run, document.body ? 9 : 99);\n\n\t\t\t// Also attach picturefill on resize and readystatechange\n\t\t\t// http://modernjavascript.blogspot.com/2013/08/building-better-debounce.html\n\t\t\tvar debounce = function debounce(func, wait) {\n\t\t\t\tvar timeout, timestamp;\n\t\t\t\tvar later = function later() {\n\t\t\t\t\tvar last = new Date() - timestamp;\n\n\t\t\t\t\tif (last < wait) {\n\t\t\t\t\t\ttimeout = setTimeout(later, wait - last);\n\t\t\t\t\t} else {\n\t\t\t\t\t\ttimeout = null;\n\t\t\t\t\t\tfunc();\n\t\t\t\t\t}\n\t\t\t\t};\n\n\t\t\t\treturn function () {\n\t\t\t\t\ttimestamp = new Date();\n\n\t\t\t\t\tif (!timeout) {\n\t\t\t\t\t\ttimeout = setTimeout(later, wait);\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t};\n\t\t\tvar lastClientWidth = docElem.clientHeight;\n\t\t\tvar onResize = function onResize() {\n\t\t\t\tisVwDirty = Math.max(window.innerWidth || 0, docElem.clientWidth) !== units.width || docElem.clientHeight !== lastClientWidth;\n\t\t\t\tlastClientWidth = docElem.clientHeight;\n\t\t\t\tif (isVwDirty) {\n\t\t\t\t\tpf.fillImgs();\n\t\t\t\t}\n\t\t\t};\n\n\t\t\ton(window, \"resize\", debounce(onResize, 99));\n\t\t\ton(document, \"readystatechange\", run);\n\t\t})();\n\t}\n\n\tpf.picturefill = picturefill;\n\t//use this internally for easy monkey patching/performance testing\n\tpf.fillImgs = picturefill;\n\tpf.teardownRun = noop;\n\n\t/* expose methods for testing */\n\tpicturefill._ = pf;\n\n\twindow.picturefillCFG = {\n\t\tpf: pf,\n\t\tpush: function push(args) {\n\t\t\tvar name = args.shift();\n\t\t\tif (typeof pf[name] === \"function\") {\n\t\t\t\tpf[name].apply(pf, args);\n\t\t\t} else {\n\t\t\t\tcfg[name] = args[0];\n\t\t\t\tif (alreadyRun) {\n\t\t\t\t\tpf.fillImgs({ reselect: true });\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t};\n\n\twhile (setOptions && setOptions.length) {\n\t\twindow.picturefillCFG.push(setOptions.shift());\n\t}\n\n\t/* expose picturefill */\n\twindow.picturefill = picturefill;\n\n\t/* expose picturefill */\n\tif (( false ? undefined : _typeof(module)) === \"object\" && _typeof(module.exports) === \"object\") {\n\t\t// CommonJS, just export\n\t\tmodule.exports = picturefill;\n\t} else if (true) {\n\t\t// AMD support\n\t\t!(__WEBPACK_AMD_DEFINE_RESULT__ = (function () {\n\t\t\treturn picturefill;\n\t\t}).call(exports, __webpack_require__, exports, module),\n\t\t\t\t__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));\n\t}\n\n\t// IE8 evals this sync, so it must be the last thing we do\n\tif (!pf.supPicture) {\n\t\ttypes[\"image/webp\"] = detectTypeSupport(\"image/webp\", \"data:image/webp;base64,UklGRkoAAABXRUJQVlA4WAoAAAAQAAAAAAAAAAAAQUxQSAwAAAABBxAR/Q9ERP8DAABWUDggGAAAADABAJ0BKgEAAQADADQlpAADcAD++/1QAA==\");\n\t}\n})(window, document);\n/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../webpack/buildin/module.js */ \"./node_modules/webpack/buildin/module.js\")(module)))\n\n//# sourceURL=webpack:///./node_modules/picturefill/dist/picturefill.js?");
+/* WEBPACK VAR INJECTION */(function(module) {var __WEBPACK_AMD_DEFINE_RESULT__;
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+/*! picturefill - v3.0.2 - 2016-02-12
+ * https://scottjehl.github.io/picturefill/
+ * Copyright (c) 2016 https://github.com/scottjehl/picturefill/blob/master/Authors.txt; Licensed MIT
+ */
+/*! Gecko-Picture - v1.0
+ * https://github.com/scottjehl/picturefill/tree/3.0/src/plugins/gecko-picture
+ * Firefox's early picture implementation (prior to FF41) is static and does
+ * not react to viewport changes. This tiny module fixes this.
+ */
+(function (window) {
+	/*jshint eqnull:true */
+	var ua = navigator.userAgent;
+
+	if (window.HTMLPictureElement && /ecko/.test(ua) && ua.match(/rv\:(\d+)/) && RegExp.$1 < 45) {
+		addEventListener("resize", function () {
+			var timer;
+
+			var dummySrc = document.createElement("source");
+
+			var fixRespimg = function fixRespimg(img) {
+				var source, sizes;
+				var picture = img.parentNode;
+
+				if (picture.nodeName.toUpperCase() === "PICTURE") {
+					source = dummySrc.cloneNode();
+
+					picture.insertBefore(source, picture.firstElementChild);
+					setTimeout(function () {
+						picture.removeChild(source);
+					});
+				} else if (!img._pfLastSize || img.offsetWidth > img._pfLastSize) {
+					img._pfLastSize = img.offsetWidth;
+					sizes = img.sizes;
+					img.sizes += ",100vw";
+					setTimeout(function () {
+						img.sizes = sizes;
+					});
+				}
+			};
+
+			var findPictureImgs = function findPictureImgs() {
+				var i;
+				var imgs = document.querySelectorAll("picture > img, img[srcset][sizes]");
+				for (i = 0; i < imgs.length; i++) {
+					fixRespimg(imgs[i]);
+				}
+			};
+			var onResize = function onResize() {
+				clearTimeout(timer);
+				timer = setTimeout(findPictureImgs, 99);
+			};
+			var mq = window.matchMedia && matchMedia("(orientation: landscape)");
+			var init = function init() {
+				onResize();
+
+				if (mq && mq.addListener) {
+					mq.addListener(onResize);
+				}
+			};
+
+			dummySrc.srcset = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+
+			if (/^[c|i]|d$/.test(document.readyState || "")) {
+				init();
+			} else {
+				document.addEventListener("DOMContentLoaded", init);
+			}
+
+			return onResize;
+		}());
+	}
+})(window);
+
+/*! Picturefill - v3.0.2
+ * http://scottjehl.github.io/picturefill
+ * Copyright (c) 2015 https://github.com/scottjehl/picturefill/blob/master/Authors.txt;
+ *  License: MIT
+ */
+
+(function (window, document, undefined) {
+	// Enable strict mode
+	"use strict";
+
+	// HTML shim|v it for old IE (IE9 will still need the HTML video tag workaround)
+
+	document.createElement("picture");
+
+	var warn, eminpx, alwaysCheckWDescriptor, evalId;
+	// local object for method references and testing exposure
+	var pf = {};
+	var isSupportTestReady = false;
+	var noop = function noop() {};
+	var image = document.createElement("img");
+	var getImgAttr = image.getAttribute;
+	var setImgAttr = image.setAttribute;
+	var removeImgAttr = image.removeAttribute;
+	var docElem = document.documentElement;
+	var types = {};
+	var cfg = {
+		//resource selection:
+		algorithm: ""
+	};
+	var srcAttr = "data-pfsrc";
+	var srcsetAttr = srcAttr + "set";
+	// ua sniffing is done for undetectable img loading features,
+	// to do some non crucial perf optimizations
+	var ua = navigator.userAgent;
+	var supportAbort = /rident/.test(ua) || /ecko/.test(ua) && ua.match(/rv\:(\d+)/) && RegExp.$1 > 35;
+	var curSrcProp = "currentSrc";
+	var regWDesc = /\s+\+?\d+(e\d+)?w/;
+	var regSize = /(\([^)]+\))?\s*(.+)/;
+	var setOptions = window.picturefillCFG;
+	/**
+  * Shortcut property for https://w3c.github.io/webappsec/specs/mixedcontent/#restricts-mixed-content ( for easy overriding in tests )
+  */
+	// baseStyle also used by getEmValue (i.e.: width: 1em is important)
+	var baseStyle = "position:absolute;left:0;visibility:hidden;display:block;padding:0;border:none;font-size:1em;width:1em;overflow:hidden;clip:rect(0px, 0px, 0px, 0px)";
+	var fsCss = "font-size:100%!important;";
+	var isVwDirty = true;
+
+	var cssCache = {};
+	var sizeLengthCache = {};
+	var DPR = window.devicePixelRatio;
+	var units = {
+		px: 1,
+		"in": 96
+	};
+	var anchor = document.createElement("a");
+	/**
+  * alreadyRun flag used for setOptions. is it true setOptions will reevaluate
+  * @type {boolean}
+  */
+	var alreadyRun = false;
+
+	// Reusable, non-"g" Regexes
+
+	// (Don't use \s, to avoid matching non-breaking space.)
+	var regexLeadingSpaces = /^[ \t\n\r\u000c]+/,
+	    regexLeadingCommasOrSpaces = /^[, \t\n\r\u000c]+/,
+	    regexLeadingNotSpaces = /^[^ \t\n\r\u000c]+/,
+	    regexTrailingCommas = /[,]+$/,
+	    regexNonNegativeInteger = /^\d+$/,
+
+
+	// ( Positive or negative or unsigned integers or decimals, without or without exponents.
+	// Must include at least one digit.
+	// According to spec tests any decimal point must be followed by a digit.
+	// No leading plus sign is allowed.)
+	// https://html.spec.whatwg.org/multipage/infrastructure.html#valid-floating-point-number
+	regexFloatingPoint = /^-?(?:[0-9]+|[0-9]*\.[0-9]+)(?:[eE][+-]?[0-9]+)?$/;
+
+	var on = function on(obj, evt, fn, capture) {
+		if (obj.addEventListener) {
+			obj.addEventListener(evt, fn, capture || false);
+		} else if (obj.attachEvent) {
+			obj.attachEvent("on" + evt, fn);
+		}
+	};
+
+	/**
+  * simple memoize function:
+  */
+
+	var memoize = function memoize(fn) {
+		var cache = {};
+		return function (input) {
+			if (!(input in cache)) {
+				cache[input] = fn(input);
+			}
+			return cache[input];
+		};
+	};
+
+	// UTILITY FUNCTIONS
+
+	// Manual is faster than RegEx
+	// http://jsperf.com/whitespace-character/5
+	function isSpace(c) {
+		return c === " " || // space
+		c === "\t" || // horizontal tab
+		c === "\n" || // new line
+		c === "\f" || // form feed
+		c === "\r"; // carriage return
+	}
+
+	/**
+  * gets a mediaquery and returns a boolean or gets a css length and returns a number
+  * @param css mediaqueries or css length
+  * @returns {boolean|number}
+  *
+  * based on: https://gist.github.com/jonathantneal/db4f77009b155f083738
+  */
+	var evalCSS = function () {
+
+		var regLength = /^([\d\.]+)(em|vw|px)$/;
+		var replace = function replace() {
+			var args = arguments,
+			    index = 0,
+			    string = args[0];
+			while (++index in args) {
+				string = string.replace(args[index], args[++index]);
+			}
+			return string;
+		};
+
+		var buildStr = memoize(function (css) {
+
+			return "return " + replace((css || "").toLowerCase(),
+			// interpret `and`
+			/\band\b/g, "&&",
+
+			// interpret `,`
+			/,/g, "||",
+
+			// interpret `min-` as >=
+			/min-([a-z-\s]+):/g, "e.$1>=",
+
+			// interpret `max-` as <=
+			/max-([a-z-\s]+):/g, "e.$1<=",
+
+			//calc value
+			/calc([^)]+)/g, "($1)",
+
+			// interpret css values
+			/(\d+[\.]*[\d]*)([a-z]+)/g, "($1 * e.$2)",
+			//make eval less evil
+			/^(?!(e.[a-z]|[0-9\.&=|><\+\-\*\(\)\/])).*/ig, "") + ";";
+		});
+
+		return function (css, length) {
+			var parsedLength;
+			if (!(css in cssCache)) {
+				cssCache[css] = false;
+				if (length && (parsedLength = css.match(regLength))) {
+					cssCache[css] = parsedLength[1] * units[parsedLength[2]];
+				} else {
+					/*jshint evil:true */
+					try {
+						cssCache[css] = new Function("e", buildStr(css))(units);
+					} catch (e) {}
+					/*jshint evil:false */
+				}
+			}
+			return cssCache[css];
+		};
+	}();
+
+	var setResolution = function setResolution(candidate, sizesattr) {
+		if (candidate.w) {
+			// h = means height: || descriptor.type === 'h' do not handle yet...
+			candidate.cWidth = pf.calcListLength(sizesattr || "100vw");
+			candidate.res = candidate.w / candidate.cWidth;
+		} else {
+			candidate.res = candidate.d;
+		}
+		return candidate;
+	};
+
+	/**
+  *
+  * @param opt
+  */
+	var picturefill = function picturefill(opt) {
+
+		if (!isSupportTestReady) {
+			return;
+		}
+
+		var elements, i, plen;
+
+		var options = opt || {};
+
+		if (options.elements && options.elements.nodeType === 1) {
+			if (options.elements.nodeName.toUpperCase() === "IMG") {
+				options.elements = [options.elements];
+			} else {
+				options.context = options.elements;
+				options.elements = null;
+			}
+		}
+
+		elements = options.elements || pf.qsa(options.context || document, options.reevaluate || options.reselect ? pf.sel : pf.selShort);
+
+		if (plen = elements.length) {
+
+			pf.setupRun(options);
+			alreadyRun = true;
+
+			// Loop through all elements
+			for (i = 0; i < plen; i++) {
+				pf.fillImg(elements[i], options);
+			}
+
+			pf.teardownRun(options);
+		}
+	};
+
+	/**
+  * outputs a warning for the developer
+  * @param {message}
+  * @type {Function}
+  */
+	warn = window.console && console.warn ? function (message) {
+		console.warn(message);
+	} : noop;
+
+	if (!(curSrcProp in image)) {
+		curSrcProp = "src";
+	}
+
+	// Add support for standard mime types.
+	types["image/jpeg"] = true;
+	types["image/gif"] = true;
+	types["image/png"] = true;
+
+	function detectTypeSupport(type, typeUri) {
+		// based on Modernizr's lossless img-webp test
+		// note: asynchronous
+		var image = new window.Image();
+		image.onerror = function () {
+			types[type] = false;
+			picturefill();
+		};
+		image.onload = function () {
+			types[type] = image.width === 1;
+			picturefill();
+		};
+		image.src = typeUri;
+		return "pending";
+	}
+
+	// test svg support
+	types["image/svg+xml"] = document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#Image", "1.1");
+
+	/**
+  * updates the internal vW property with the current viewport width in px
+  */
+	function updateMetrics() {
+
+		isVwDirty = false;
+		DPR = window.devicePixelRatio;
+		cssCache = {};
+		sizeLengthCache = {};
+
+		pf.DPR = DPR || 1;
+
+		units.width = Math.max(window.innerWidth || 0, docElem.clientWidth);
+		units.height = Math.max(window.innerHeight || 0, docElem.clientHeight);
+
+		units.vw = units.width / 100;
+		units.vh = units.height / 100;
+
+		evalId = [units.height, units.width, DPR].join("-");
+
+		units.em = pf.getEmValue();
+		units.rem = units.em;
+	}
+
+	function chooseLowRes(lowerValue, higherValue, dprValue, isCached) {
+		var bonusFactor, tooMuch, bonus, meanDensity;
+
+		//experimental
+		if (cfg.algorithm === "saveData") {
+			if (lowerValue > 2.7) {
+				meanDensity = dprValue + 1;
+			} else {
+				tooMuch = higherValue - dprValue;
+				bonusFactor = Math.pow(lowerValue - 0.6, 1.5);
+
+				bonus = tooMuch * bonusFactor;
+
+				if (isCached) {
+					bonus += 0.1 * bonusFactor;
+				}
+
+				meanDensity = lowerValue + bonus;
+			}
+		} else {
+			meanDensity = dprValue > 1 ? Math.sqrt(lowerValue * higherValue) : lowerValue;
+		}
+
+		return meanDensity > dprValue;
+	}
+
+	function applyBestCandidate(img) {
+		var srcSetCandidates;
+		var matchingSet = pf.getSet(img);
+		var evaluated = false;
+		if (matchingSet !== "pending") {
+			evaluated = evalId;
+			if (matchingSet) {
+				srcSetCandidates = pf.setRes(matchingSet);
+				pf.applySetCandidate(srcSetCandidates, img);
+			}
+		}
+		img[pf.ns].evaled = evaluated;
+	}
+
+	function ascendingSort(a, b) {
+		return a.res - b.res;
+	}
+
+	function setSrcToCur(img, src, set) {
+		var candidate;
+		if (!set && src) {
+			set = img[pf.ns].sets;
+			set = set && set[set.length - 1];
+		}
+
+		candidate = getCandidateForSrc(src, set);
+
+		if (candidate) {
+			src = pf.makeUrl(src);
+			img[pf.ns].curSrc = src;
+			img[pf.ns].curCan = candidate;
+
+			if (!candidate.res) {
+				setResolution(candidate, candidate.set.sizes);
+			}
+		}
+		return candidate;
+	}
+
+	function getCandidateForSrc(src, set) {
+		var i, candidate, candidates;
+		if (src && set) {
+			candidates = pf.parseSet(set);
+			src = pf.makeUrl(src);
+			for (i = 0; i < candidates.length; i++) {
+				if (src === pf.makeUrl(candidates[i].url)) {
+					candidate = candidates[i];
+					break;
+				}
+			}
+		}
+		return candidate;
+	}
+
+	function getAllSourceElements(picture, candidates) {
+		var i, len, source, srcset;
+
+		// SPEC mismatch intended for size and perf:
+		// actually only source elements preceding the img should be used
+		// also note: don't use qsa here, because IE8 sometimes doesn't like source as the key part in a selector
+		var sources = picture.getElementsByTagName("source");
+
+		for (i = 0, len = sources.length; i < len; i++) {
+			source = sources[i];
+			source[pf.ns] = true;
+			srcset = source.getAttribute("srcset");
+
+			// if source does not have a srcset attribute, skip
+			if (srcset) {
+				candidates.push({
+					srcset: srcset,
+					media: source.getAttribute("media"),
+					type: source.getAttribute("type"),
+					sizes: source.getAttribute("sizes")
+				});
+			}
+		}
+	}
+
+	/**
+  * Srcset Parser
+  * By Alex Bell |  MIT License
+  *
+  * @returns Array [{url: _, d: _, w: _, h:_, set:_(????)}, ...]
+  *
+  * Based super duper closely on the reference algorithm at:
+  * https://html.spec.whatwg.org/multipage/embedded-content.html#parse-a-srcset-attribute
+  */
+
+	// 1. Let input be the value passed to this algorithm.
+	// (TO-DO : Explain what "set" argument is here. Maybe choose a more
+	// descriptive & more searchable name.  Since passing the "set" in really has
+	// nothing to do with parsing proper, I would prefer this assignment eventually
+	// go in an external fn.)
+	function parseSrcset(input, set) {
+
+		function collectCharacters(regEx) {
+			var chars,
+			    match = regEx.exec(input.substring(pos));
+			if (match) {
+				chars = match[0];
+				pos += chars.length;
+				return chars;
+			}
+		}
+
+		var inputLength = input.length,
+		    url,
+		    descriptors,
+		    currentDescriptor,
+		    state,
+		    c,
+
+
+		// 2. Let position be a pointer into input, initially pointing at the start
+		//    of the string.
+		pos = 0,
+
+
+		// 3. Let candidates be an initially empty source set.
+		candidates = [];
+
+		/**
+  * Adds descriptor properties to a candidate, pushes to the candidates array
+  * @return undefined
+  */
+		// (Declared outside of the while loop so that it's only created once.
+		// (This fn is defined before it is used, in order to pass JSHINT.
+		// Unfortunately this breaks the sequencing of the spec comments. :/ )
+		function parseDescriptors() {
+
+			// 9. Descriptor parser: Let error be no.
+			var pError = false,
+
+
+			// 10. Let width be absent.
+			// 11. Let density be absent.
+			// 12. Let future-compat-h be absent. (We're implementing it now as h)
+			w,
+			    d,
+			    h,
+			    i,
+			    candidate = {},
+			    desc,
+			    lastChar,
+			    value,
+			    intVal,
+			    floatVal;
+
+			// 13. For each descriptor in descriptors, run the appropriate set of steps
+			// from the following list:
+			for (i = 0; i < descriptors.length; i++) {
+				desc = descriptors[i];
+
+				lastChar = desc[desc.length - 1];
+				value = desc.substring(0, desc.length - 1);
+				intVal = parseInt(value, 10);
+				floatVal = parseFloat(value);
+
+				// If the descriptor consists of a valid non-negative integer followed by
+				// a U+0077 LATIN SMALL LETTER W character
+				if (regexNonNegativeInteger.test(value) && lastChar === "w") {
+
+					// If width and density are not both absent, then let error be yes.
+					if (w || d) {
+						pError = true;
+					}
+
+					// Apply the rules for parsing non-negative integers to the descriptor.
+					// If the result is zero, let error be yes.
+					// Otherwise, let width be the result.
+					if (intVal === 0) {
+						pError = true;
+					} else {
+						w = intVal;
+					}
+
+					// If the descriptor consists of a valid floating-point number followed by
+					// a U+0078 LATIN SMALL LETTER X character
+				} else if (regexFloatingPoint.test(value) && lastChar === "x") {
+
+					// If width, density and future-compat-h are not all absent, then let error
+					// be yes.
+					if (w || d || h) {
+						pError = true;
+					}
+
+					// Apply the rules for parsing floating-point number values to the descriptor.
+					// If the result is less than zero, let error be yes. Otherwise, let density
+					// be the result.
+					if (floatVal < 0) {
+						pError = true;
+					} else {
+						d = floatVal;
+					}
+
+					// If the descriptor consists of a valid non-negative integer followed by
+					// a U+0068 LATIN SMALL LETTER H character
+				} else if (regexNonNegativeInteger.test(value) && lastChar === "h") {
+
+					// If height and density are not both absent, then let error be yes.
+					if (h || d) {
+						pError = true;
+					}
+
+					// Apply the rules for parsing non-negative integers to the descriptor.
+					// If the result is zero, let error be yes. Otherwise, let future-compat-h
+					// be the result.
+					if (intVal === 0) {
+						pError = true;
+					} else {
+						h = intVal;
+					}
+
+					// Anything else, Let error be yes.
+				} else {
+					pError = true;
+				}
+			} // (close step 13 for loop)
+
+			// 15. If error is still no, then append a new image source to candidates whose
+			// URL is url, associated with a width width if not absent and a pixel
+			// density density if not absent. Otherwise, there is a parse error.
+			if (!pError) {
+				candidate.url = url;
+
+				if (w) {
+					candidate.w = w;
+				}
+				if (d) {
+					candidate.d = d;
+				}
+				if (h) {
+					candidate.h = h;
+				}
+				if (!h && !d && !w) {
+					candidate.d = 1;
+				}
+				if (candidate.d === 1) {
+					set.has1x = true;
+				}
+				candidate.set = set;
+
+				candidates.push(candidate);
+			}
+		} // (close parseDescriptors fn)
+
+		/**
+  * Tokenizes descriptor properties prior to parsing
+  * Returns undefined.
+  * (Again, this fn is defined before it is used, in order to pass JSHINT.
+  * Unfortunately this breaks the logical sequencing of the spec comments. :/ )
+  */
+		function tokenize() {
+
+			// 8.1. Descriptor tokeniser: Skip whitespace
+			collectCharacters(regexLeadingSpaces);
+
+			// 8.2. Let current descriptor be the empty string.
+			currentDescriptor = "";
+
+			// 8.3. Let state be in descriptor.
+			state = "in descriptor";
+
+			while (true) {
+
+				// 8.4. Let c be the character at position.
+				c = input.charAt(pos);
+
+				//  Do the following depending on the value of state.
+				//  For the purpose of this step, "EOF" is a special character representing
+				//  that position is past the end of input.
+
+				// In descriptor
+				if (state === "in descriptor") {
+					// Do the following, depending on the value of c:
+
+					// Space character
+					// If current descriptor is not empty, append current descriptor to
+					// descriptors and let current descriptor be the empty string.
+					// Set state to after descriptor.
+					if (isSpace(c)) {
+						if (currentDescriptor) {
+							descriptors.push(currentDescriptor);
+							currentDescriptor = "";
+							state = "after descriptor";
+						}
+
+						// U+002C COMMA (,)
+						// Advance position to the next character in input. If current descriptor
+						// is not empty, append current descriptor to descriptors. Jump to the step
+						// labeled descriptor parser.
+					} else if (c === ",") {
+						pos += 1;
+						if (currentDescriptor) {
+							descriptors.push(currentDescriptor);
+						}
+						parseDescriptors();
+						return;
+
+						// U+0028 LEFT PARENTHESIS (()
+						// Append c to current descriptor. Set state to in parens.
+					} else if (c === "(") {
+						currentDescriptor = currentDescriptor + c;
+						state = "in parens";
+
+						// EOF
+						// If current descriptor is not empty, append current descriptor to
+						// descriptors. Jump to the step labeled descriptor parser.
+					} else if (c === "") {
+						if (currentDescriptor) {
+							descriptors.push(currentDescriptor);
+						}
+						parseDescriptors();
+						return;
+
+						// Anything else
+						// Append c to current descriptor.
+					} else {
+						currentDescriptor = currentDescriptor + c;
+					}
+					// (end "in descriptor"
+
+					// In parens
+				} else if (state === "in parens") {
+
+					// U+0029 RIGHT PARENTHESIS ())
+					// Append c to current descriptor. Set state to in descriptor.
+					if (c === ")") {
+						currentDescriptor = currentDescriptor + c;
+						state = "in descriptor";
+
+						// EOF
+						// Append current descriptor to descriptors. Jump to the step labeled
+						// descriptor parser.
+					} else if (c === "") {
+						descriptors.push(currentDescriptor);
+						parseDescriptors();
+						return;
+
+						// Anything else
+						// Append c to current descriptor.
+					} else {
+						currentDescriptor = currentDescriptor + c;
+					}
+
+					// After descriptor
+				} else if (state === "after descriptor") {
+
+					// Do the following, depending on the value of c:
+					// Space character: Stay in this state.
+					if (isSpace(c)) {
+
+						// EOF: Jump to the step labeled descriptor parser.
+					} else if (c === "") {
+						parseDescriptors();
+						return;
+
+						// Anything else
+						// Set state to in descriptor. Set position to the previous character in input.
+					} else {
+						state = "in descriptor";
+						pos -= 1;
+					}
+				}
+
+				// Advance position to the next character in input.
+				pos += 1;
+
+				// Repeat this step.
+			} // (close while true loop)
+		}
+
+		// 4. Splitting loop: Collect a sequence of characters that are space
+		//    characters or U+002C COMMA characters. If any U+002C COMMA characters
+		//    were collected, that is a parse error.
+		while (true) {
+			collectCharacters(regexLeadingCommasOrSpaces);
+
+			// 5. If position is past the end of input, return candidates and abort these steps.
+			if (pos >= inputLength) {
+				return candidates; // (we're done, this is the sole return path)
+			}
+
+			// 6. Collect a sequence of characters that are not space characters,
+			//    and let that be url.
+			url = collectCharacters(regexLeadingNotSpaces);
+
+			// 7. Let descriptors be a new empty list.
+			descriptors = [];
+
+			// 8. If url ends with a U+002C COMMA character (,), follow these substeps:
+			//		(1). Remove all trailing U+002C COMMA characters from url. If this removed
+			//         more than one character, that is a parse error.
+			if (url.slice(-1) === ",") {
+				url = url.replace(regexTrailingCommas, "");
+				// (Jump ahead to step 9 to skip tokenization and just push the candidate).
+				parseDescriptors();
+
+				//	Otherwise, follow these substeps:
+			} else {
+				tokenize();
+			} // (close else of step 8)
+
+			// 16. Return to the step labeled splitting loop.
+		} // (Close of big while loop.)
+	}
+
+	/*
+  * Sizes Parser
+  *
+  * By Alex Bell |  MIT License
+  *
+  * Non-strict but accurate and lightweight JS Parser for the string value <img sizes="here">
+  *
+  * Reference algorithm at:
+  * https://html.spec.whatwg.org/multipage/embedded-content.html#parse-a-sizes-attribute
+  *
+  * Most comments are copied in directly from the spec
+  * (except for comments in parens).
+  *
+  * Grammar is:
+  * <source-size-list> = <source-size># [ , <source-size-value> ]? | <source-size-value>
+  * <source-size> = <media-condition> <source-size-value>
+  * <source-size-value> = <length>
+  * http://www.w3.org/html/wg/drafts/html/master/embedded-content.html#attr-img-sizes
+  *
+  * E.g. "(max-width: 30em) 100vw, (max-width: 50em) 70vw, 100vw"
+  * or "(min-width: 30em), calc(30vw - 15px)" or just "30vw"
+  *
+  * Returns the first valid <css-length> with a media condition that evaluates to true,
+  * or "100vw" if all valid media conditions evaluate to false.
+  *
+  */
+
+	function parseSizes(strValue) {
+
+		// (Percentage CSS lengths are not allowed in this case, to avoid confusion:
+		// https://html.spec.whatwg.org/multipage/embedded-content.html#valid-source-size-list
+		// CSS allows a single optional plus or minus sign:
+		// http://www.w3.org/TR/CSS2/syndata.html#numbers
+		// CSS is ASCII case-insensitive:
+		// http://www.w3.org/TR/CSS2/syndata.html#characters )
+		// Spec allows exponential notation for <number> type:
+		// http://dev.w3.org/csswg/css-values/#numbers
+		var regexCssLengthWithUnits = /^(?:[+-]?[0-9]+|[0-9]*\.[0-9]+)(?:[eE][+-]?[0-9]+)?(?:ch|cm|em|ex|in|mm|pc|pt|px|rem|vh|vmin|vmax|vw)$/i;
+
+		// (This is a quick and lenient test. Because of optional unlimited-depth internal
+		// grouping parens and strict spacing rules, this could get very complicated.)
+		var regexCssCalc = /^calc\((?:[0-9a-z \.\+\-\*\/\(\)]+)\)$/i;
+
+		var i;
+		var unparsedSizesList;
+		var unparsedSizesListLength;
+		var unparsedSize;
+		var lastComponentValue;
+		var size;
+
+		// UTILITY FUNCTIONS
+
+		//  (Toy CSS parser. The goals here are:
+		//  1) expansive test coverage without the weight of a full CSS parser.
+		//  2) Avoiding regex wherever convenient.
+		//  Quick tests: http://jsfiddle.net/gtntL4gr/3/
+		//  Returns an array of arrays.)
+		function parseComponentValues(str) {
+			var chrctr;
+			var component = "";
+			var componentArray = [];
+			var listArray = [];
+			var parenDepth = 0;
+			var pos = 0;
+			var inComment = false;
+
+			function pushComponent() {
+				if (component) {
+					componentArray.push(component);
+					component = "";
+				}
+			}
+
+			function pushComponentArray() {
+				if (componentArray[0]) {
+					listArray.push(componentArray);
+					componentArray = [];
+				}
+			}
+
+			// (Loop forwards from the beginning of the string.)
+			while (true) {
+				chrctr = str.charAt(pos);
+
+				if (chrctr === "") {
+					// ( End of string reached.)
+					pushComponent();
+					pushComponentArray();
+					return listArray;
+				} else if (inComment) {
+					if (chrctr === "*" && str[pos + 1] === "/") {
+						// (At end of a comment.)
+						inComment = false;
+						pos += 2;
+						pushComponent();
+						continue;
+					} else {
+						pos += 1; // (Skip all characters inside comments.)
+						continue;
+					}
+				} else if (isSpace(chrctr)) {
+					// (If previous character in loop was also a space, or if
+					// at the beginning of the string, do not add space char to
+					// component.)
+					if (str.charAt(pos - 1) && isSpace(str.charAt(pos - 1)) || !component) {
+						pos += 1;
+						continue;
+					} else if (parenDepth === 0) {
+						pushComponent();
+						pos += 1;
+						continue;
+					} else {
+						// (Replace any space character with a plain space for legibility.)
+						chrctr = " ";
+					}
+				} else if (chrctr === "(") {
+					parenDepth += 1;
+				} else if (chrctr === ")") {
+					parenDepth -= 1;
+				} else if (chrctr === ",") {
+					pushComponent();
+					pushComponentArray();
+					pos += 1;
+					continue;
+				} else if (chrctr === "/" && str.charAt(pos + 1) === "*") {
+					inComment = true;
+					pos += 2;
+					continue;
+				}
+
+				component = component + chrctr;
+				pos += 1;
+			}
+		}
+
+		function isValidNonNegativeSourceSizeValue(s) {
+			if (regexCssLengthWithUnits.test(s) && parseFloat(s) >= 0) {
+				return true;
+			}
+			if (regexCssCalc.test(s)) {
+				return true;
+			}
+			// ( http://www.w3.org/TR/CSS2/syndata.html#numbers says:
+			// "-0 is equivalent to 0 and is not a negative number." which means that
+			// unitless zero and unitless negative zero must be accepted as special cases.)
+			if (s === "0" || s === "-0" || s === "+0") {
+				return true;
+			}
+			return false;
+		}
+
+		// When asked to parse a sizes attribute from an element, parse a
+		// comma-separated list of component values from the value of the element's
+		// sizes attribute (or the empty string, if the attribute is absent), and let
+		// unparsed sizes list be the result.
+		// http://dev.w3.org/csswg/css-syntax/#parse-comma-separated-list-of-component-values
+
+		unparsedSizesList = parseComponentValues(strValue);
+		unparsedSizesListLength = unparsedSizesList.length;
+
+		// For each unparsed size in unparsed sizes list:
+		for (i = 0; i < unparsedSizesListLength; i++) {
+			unparsedSize = unparsedSizesList[i];
+
+			// 1. Remove all consecutive <whitespace-token>s from the end of unparsed size.
+			// ( parseComponentValues() already omits spaces outside of parens. )
+
+			// If unparsed size is now empty, that is a parse error; continue to the next
+			// iteration of this algorithm.
+			// ( parseComponentValues() won't push an empty array. )
+
+			// 2. If the last component value in unparsed size is a valid non-negative
+			// <source-size-value>, let size be its value and remove the component value
+			// from unparsed size. Any CSS function other than the calc() function is
+			// invalid. Otherwise, there is a parse error; continue to the next iteration
+			// of this algorithm.
+			// http://dev.w3.org/csswg/css-syntax/#parse-component-value
+			lastComponentValue = unparsedSize[unparsedSize.length - 1];
+
+			if (isValidNonNegativeSourceSizeValue(lastComponentValue)) {
+				size = lastComponentValue;
+				unparsedSize.pop();
+			} else {
+				continue;
+			}
+
+			// 3. Remove all consecutive <whitespace-token>s from the end of unparsed
+			// size. If unparsed size is now empty, return size and exit this algorithm.
+			// If this was not the last item in unparsed sizes list, that is a parse error.
+			if (unparsedSize.length === 0) {
+				return size;
+			}
+
+			// 4. Parse the remaining component values in unparsed size as a
+			// <media-condition>. If it does not parse correctly, or it does parse
+			// correctly but the <media-condition> evaluates to false, continue to the
+			// next iteration of this algorithm.
+			// (Parsing all possible compound media conditions in JS is heavy, complicated,
+			// and the payoff is unclear. Is there ever an situation where the
+			// media condition parses incorrectly but still somehow evaluates to true?
+			// Can we just rely on the browser/polyfill to do it?)
+			unparsedSize = unparsedSize.join(" ");
+			if (!pf.matchesMedia(unparsedSize)) {
+				continue;
+			}
+
+			// 5. Return size and exit this algorithm.
+			return size;
+		}
+
+		// If the above algorithm exhausts unparsed sizes list without returning a
+		// size value, return 100vw.
+		return "100vw";
+	}
+
+	// namespace
+	pf.ns = ("pf" + new Date().getTime()).substr(0, 9);
+
+	// srcset support test
+	pf.supSrcset = "srcset" in image;
+	pf.supSizes = "sizes" in image;
+	pf.supPicture = !!window.HTMLPictureElement;
+
+	// UC browser does claim to support srcset and picture, but not sizes,
+	// this extended test reveals the browser does support nothing
+	if (pf.supSrcset && pf.supPicture && !pf.supSizes) {
+		(function (image2) {
+			image.srcset = "data:,a";
+			image2.src = "data:,a";
+			pf.supSrcset = image.complete === image2.complete;
+			pf.supPicture = pf.supSrcset && pf.supPicture;
+		})(document.createElement("img"));
+	}
+
+	// Safari9 has basic support for sizes, but does't expose the `sizes` idl attribute
+	if (pf.supSrcset && !pf.supSizes) {
+
+		(function () {
+			var width2 = "data:image/gif;base64,R0lGODlhAgABAPAAAP///wAAACH5BAAAAAAALAAAAAACAAEAAAICBAoAOw==";
+			var width1 = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+			var img = document.createElement("img");
+			var test = function test() {
+				var width = img.width;
+
+				if (width === 2) {
+					pf.supSizes = true;
+				}
+
+				alwaysCheckWDescriptor = pf.supSrcset && !pf.supSizes;
+
+				isSupportTestReady = true;
+				// force async
+				setTimeout(picturefill);
+			};
+
+			img.onload = test;
+			img.onerror = test;
+			img.setAttribute("sizes", "9px");
+
+			img.srcset = width1 + " 1w," + width2 + " 9w";
+			img.src = width1;
+		})();
+	} else {
+		isSupportTestReady = true;
+	}
+
+	// using pf.qsa instead of dom traversing does scale much better,
+	// especially on sites mixing responsive and non-responsive images
+	pf.selShort = "picture>img,img[srcset]";
+	pf.sel = pf.selShort;
+	pf.cfg = cfg;
+
+	/**
+  * Shortcut property for `devicePixelRatio` ( for easy overriding in tests )
+  */
+	pf.DPR = DPR || 1;
+	pf.u = units;
+
+	// container of supported mime types that one might need to qualify before using
+	pf.types = types;
+
+	pf.setSize = noop;
+
+	/**
+  * Gets a string and returns the absolute URL
+  * @param src
+  * @returns {String} absolute URL
+  */
+
+	pf.makeUrl = memoize(function (src) {
+		anchor.href = src;
+		return anchor.href;
+	});
+
+	/**
+  * Gets a DOM element or document and a selctor and returns the found matches
+  * Can be extended with jQuery/Sizzle for IE7 support
+  * @param context
+  * @param sel
+  * @returns {NodeList|Array}
+  */
+	pf.qsa = function (context, sel) {
+		return "querySelector" in context ? context.querySelectorAll(sel) : [];
+	};
+
+	/**
+  * Shortcut method for matchMedia ( for easy overriding in tests )
+  * wether native or pf.mMQ is used will be decided lazy on first call
+  * @returns {boolean}
+  */
+	pf.matchesMedia = function () {
+		if (window.matchMedia && (matchMedia("(min-width: 0.1em)") || {}).matches) {
+			pf.matchesMedia = function (media) {
+				return !media || matchMedia(media).matches;
+			};
+		} else {
+			pf.matchesMedia = pf.mMQ;
+		}
+
+		return pf.matchesMedia.apply(this, arguments);
+	};
+
+	/**
+  * A simplified matchMedia implementation for IE8 and IE9
+  * handles only min-width/max-width with px or em values
+  * @param media
+  * @returns {boolean}
+  */
+	pf.mMQ = function (media) {
+		return media ? evalCSS(media) : true;
+	};
+
+	/**
+  * Returns the calculated length in css pixel from the given sourceSizeValue
+  * http://dev.w3.org/csswg/css-values-3/#length-value
+  * intended Spec mismatches:
+  * * Does not check for invalid use of CSS functions
+  * * Does handle a computed length of 0 the same as a negative and therefore invalid value
+  * @param sourceSizeValue
+  * @returns {Number}
+  */
+	pf.calcLength = function (sourceSizeValue) {
+
+		var value = evalCSS(sourceSizeValue, true) || false;
+		if (value < 0) {
+			value = false;
+		}
+
+		return value;
+	};
+
+	/**
+  * Takes a type string and checks if its supported
+  */
+
+	pf.supportsType = function (type) {
+		return type ? types[type] : true;
+	};
+
+	/**
+  * Parses a sourceSize into mediaCondition (media) and sourceSizeValue (length)
+  * @param sourceSizeStr
+  * @returns {*}
+  */
+	pf.parseSize = memoize(function (sourceSizeStr) {
+		var match = (sourceSizeStr || "").match(regSize);
+		return {
+			media: match && match[1],
+			length: match && match[2]
+		};
+	});
+
+	pf.parseSet = function (set) {
+		if (!set.cands) {
+			set.cands = parseSrcset(set.srcset, set);
+		}
+		return set.cands;
+	};
+
+	/**
+  * returns 1em in css px for html/body default size
+  * function taken from respondjs
+  * @returns {*|number}
+  */
+	pf.getEmValue = function () {
+		var body;
+		if (!eminpx && (body = document.body)) {
+			var div = document.createElement("div"),
+			    originalHTMLCSS = docElem.style.cssText,
+			    originalBodyCSS = body.style.cssText;
+
+			div.style.cssText = baseStyle;
+
+			// 1em in a media query is the value of the default font size of the browser
+			// reset docElem and body to ensure the correct value is returned
+			docElem.style.cssText = fsCss;
+			body.style.cssText = fsCss;
+
+			body.appendChild(div);
+			eminpx = div.offsetWidth;
+			body.removeChild(div);
+
+			//also update eminpx before returning
+			eminpx = parseFloat(eminpx, 10);
+
+			// restore the original values
+			docElem.style.cssText = originalHTMLCSS;
+			body.style.cssText = originalBodyCSS;
+		}
+		return eminpx || 16;
+	};
+
+	/**
+  * Takes a string of sizes and returns the width in pixels as a number
+  */
+	pf.calcListLength = function (sourceSizeListStr) {
+		// Split up source size list, ie ( max-width: 30em ) 100%, ( max-width: 50em ) 50%, 33%
+		//
+		//                           or (min-width:30em) calc(30% - 15px)
+		if (!(sourceSizeListStr in sizeLengthCache) || cfg.uT) {
+			var winningLength = pf.calcLength(parseSizes(sourceSizeListStr));
+
+			sizeLengthCache[sourceSizeListStr] = !winningLength ? units.width : winningLength;
+		}
+
+		return sizeLengthCache[sourceSizeListStr];
+	};
+
+	/**
+  * Takes a candidate object with a srcset property in the form of url/
+  * ex. "images/pic-medium.png 1x, images/pic-medium-2x.png 2x" or
+  *     "images/pic-medium.png 400w, images/pic-medium-2x.png 800w" or
+  *     "images/pic-small.png"
+  * Get an array of image candidates in the form of
+  *      {url: "/foo/bar.png", resolution: 1}
+  * where resolution is http://dev.w3.org/csswg/css-values-3/#resolution-value
+  * If sizes is specified, res is calculated
+  */
+	pf.setRes = function (set) {
+		var candidates;
+		if (set) {
+
+			candidates = pf.parseSet(set);
+
+			for (var i = 0, len = candidates.length; i < len; i++) {
+				setResolution(candidates[i], set.sizes);
+			}
+		}
+		return candidates;
+	};
+
+	pf.setRes.res = setResolution;
+
+	pf.applySetCandidate = function (candidates, img) {
+		if (!candidates.length) {
+			return;
+		}
+		var candidate, i, j, length, bestCandidate, curSrc, curCan, candidateSrc, abortCurSrc;
+
+		var imageData = img[pf.ns];
+		var dpr = pf.DPR;
+
+		curSrc = imageData.curSrc || img[curSrcProp];
+
+		curCan = imageData.curCan || setSrcToCur(img, curSrc, candidates[0].set);
+
+		// if we have a current source, we might either become lazy or give this source some advantage
+		if (curCan && curCan.set === candidates[0].set) {
+
+			// if browser can abort image request and the image has a higher pixel density than needed
+			// and this image isn't downloaded yet, we skip next part and try to save bandwidth
+			abortCurSrc = supportAbort && !img.complete && curCan.res - 0.1 > dpr;
+
+			if (!abortCurSrc) {
+				curCan.cached = true;
+
+				// if current candidate is "best", "better" or "okay",
+				// set it to bestCandidate
+				if (curCan.res >= dpr) {
+					bestCandidate = curCan;
+				}
+			}
+		}
+
+		if (!bestCandidate) {
+
+			candidates.sort(ascendingSort);
+
+			length = candidates.length;
+			bestCandidate = candidates[length - 1];
+
+			for (i = 0; i < length; i++) {
+				candidate = candidates[i];
+				if (candidate.res >= dpr) {
+					j = i - 1;
+
+					// we have found the perfect candidate,
+					// but let's improve this a little bit with some assumptions ;-)
+					if (candidates[j] && (abortCurSrc || curSrc !== pf.makeUrl(candidate.url)) && chooseLowRes(candidates[j].res, candidate.res, dpr, candidates[j].cached)) {
+
+						bestCandidate = candidates[j];
+					} else {
+						bestCandidate = candidate;
+					}
+					break;
+				}
+			}
+		}
+
+		if (bestCandidate) {
+
+			candidateSrc = pf.makeUrl(bestCandidate.url);
+
+			imageData.curSrc = candidateSrc;
+			imageData.curCan = bestCandidate;
+
+			if (candidateSrc !== curSrc) {
+				pf.setSrc(img, bestCandidate);
+			}
+			pf.setSize(img);
+		}
+	};
+
+	pf.setSrc = function (img, bestCandidate) {
+		var origWidth;
+		img.src = bestCandidate.url;
+
+		// although this is a specific Safari issue, we don't want to take too much different code paths
+		if (bestCandidate.set.type === "image/svg+xml") {
+			origWidth = img.style.width;
+			img.style.width = img.offsetWidth + 1 + "px";
+
+			// next line only should trigger a repaint
+			// if... is only done to trick dead code removal
+			if (img.offsetWidth + 1) {
+				img.style.width = origWidth;
+			}
+		}
+	};
+
+	pf.getSet = function (img) {
+		var i, set, supportsType;
+		var match = false;
+		var sets = img[pf.ns].sets;
+
+		for (i = 0; i < sets.length && !match; i++) {
+			set = sets[i];
+
+			if (!set.srcset || !pf.matchesMedia(set.media) || !(supportsType = pf.supportsType(set.type))) {
+				continue;
+			}
+
+			if (supportsType === "pending") {
+				set = supportsType;
+			}
+
+			match = set;
+			break;
+		}
+
+		return match;
+	};
+
+	pf.parseSets = function (element, parent, options) {
+		var srcsetAttribute, imageSet, isWDescripor, srcsetParsed;
+
+		var hasPicture = parent && parent.nodeName.toUpperCase() === "PICTURE";
+		var imageData = element[pf.ns];
+
+		if (imageData.src === undefined || options.src) {
+			imageData.src = getImgAttr.call(element, "src");
+			if (imageData.src) {
+				setImgAttr.call(element, srcAttr, imageData.src);
+			} else {
+				removeImgAttr.call(element, srcAttr);
+			}
+		}
+
+		if (imageData.srcset === undefined || options.srcset || !pf.supSrcset || element.srcset) {
+			srcsetAttribute = getImgAttr.call(element, "srcset");
+			imageData.srcset = srcsetAttribute;
+			srcsetParsed = true;
+		}
+
+		imageData.sets = [];
+
+		if (hasPicture) {
+			imageData.pic = true;
+			getAllSourceElements(parent, imageData.sets);
+		}
+
+		if (imageData.srcset) {
+			imageSet = {
+				srcset: imageData.srcset,
+				sizes: getImgAttr.call(element, "sizes")
+			};
+
+			imageData.sets.push(imageSet);
+
+			isWDescripor = (alwaysCheckWDescriptor || imageData.src) && regWDesc.test(imageData.srcset || "");
+
+			// add normal src as candidate, if source has no w descriptor
+			if (!isWDescripor && imageData.src && !getCandidateForSrc(imageData.src, imageSet) && !imageSet.has1x) {
+				imageSet.srcset += ", " + imageData.src;
+				imageSet.cands.push({
+					url: imageData.src,
+					d: 1,
+					set: imageSet
+				});
+			}
+		} else if (imageData.src) {
+			imageData.sets.push({
+				srcset: imageData.src,
+				sizes: null
+			});
+		}
+
+		imageData.curCan = null;
+		imageData.curSrc = undefined;
+
+		// if img has picture or the srcset was removed or has a srcset and does not support srcset at all
+		// or has a w descriptor (and does not support sizes) set support to false to evaluate
+		imageData.supported = !(hasPicture || imageSet && !pf.supSrcset || isWDescripor && !pf.supSizes);
+
+		if (srcsetParsed && pf.supSrcset && !imageData.supported) {
+			if (srcsetAttribute) {
+				setImgAttr.call(element, srcsetAttr, srcsetAttribute);
+				element.srcset = "";
+			} else {
+				removeImgAttr.call(element, srcsetAttr);
+			}
+		}
+
+		if (imageData.supported && !imageData.srcset && (!imageData.src && element.src || element.src !== pf.makeUrl(imageData.src))) {
+			if (imageData.src === null) {
+				element.removeAttribute("src");
+			} else {
+				element.src = imageData.src;
+			}
+		}
+
+		imageData.parsed = true;
+	};
+
+	pf.fillImg = function (element, options) {
+		var imageData;
+		var extreme = options.reselect || options.reevaluate;
+
+		// expando for caching data on the img
+		if (!element[pf.ns]) {
+			element[pf.ns] = {};
+		}
+
+		imageData = element[pf.ns];
+
+		// if the element has already been evaluated, skip it
+		// unless `options.reevaluate` is set to true ( this, for example,
+		// is set to true when running `picturefill` on `resize` ).
+		if (!extreme && imageData.evaled === evalId) {
+			return;
+		}
+
+		if (!imageData.parsed || options.reevaluate) {
+			pf.parseSets(element, element.parentNode, options);
+		}
+
+		if (!imageData.supported) {
+			applyBestCandidate(element);
+		} else {
+			imageData.evaled = evalId;
+		}
+	};
+
+	pf.setupRun = function () {
+		if (!alreadyRun || isVwDirty || DPR !== window.devicePixelRatio) {
+			updateMetrics();
+		}
+	};
+
+	// If picture is supported, well, that's awesome.
+	if (pf.supPicture) {
+		picturefill = noop;
+		pf.fillImg = noop;
+	} else {
+
+		// Set up picture polyfill by polling the document
+		(function () {
+			var isDomReady;
+			var regReady = window.attachEvent ? /d$|^c/ : /d$|^c|^i/;
+
+			var run = function run() {
+				var readyState = document.readyState || "";
+
+				timerId = setTimeout(run, readyState === "loading" ? 200 : 999);
+				if (document.body) {
+					pf.fillImgs();
+					isDomReady = isDomReady || regReady.test(readyState);
+					if (isDomReady) {
+						clearTimeout(timerId);
+					}
+				}
+			};
+
+			var timerId = setTimeout(run, document.body ? 9 : 99);
+
+			// Also attach picturefill on resize and readystatechange
+			// http://modernjavascript.blogspot.com/2013/08/building-better-debounce.html
+			var debounce = function debounce(func, wait) {
+				var timeout, timestamp;
+				var later = function later() {
+					var last = new Date() - timestamp;
+
+					if (last < wait) {
+						timeout = setTimeout(later, wait - last);
+					} else {
+						timeout = null;
+						func();
+					}
+				};
+
+				return function () {
+					timestamp = new Date();
+
+					if (!timeout) {
+						timeout = setTimeout(later, wait);
+					}
+				};
+			};
+			var lastClientWidth = docElem.clientHeight;
+			var onResize = function onResize() {
+				isVwDirty = Math.max(window.innerWidth || 0, docElem.clientWidth) !== units.width || docElem.clientHeight !== lastClientWidth;
+				lastClientWidth = docElem.clientHeight;
+				if (isVwDirty) {
+					pf.fillImgs();
+				}
+			};
+
+			on(window, "resize", debounce(onResize, 99));
+			on(document, "readystatechange", run);
+		})();
+	}
+
+	pf.picturefill = picturefill;
+	//use this internally for easy monkey patching/performance testing
+	pf.fillImgs = picturefill;
+	pf.teardownRun = noop;
+
+	/* expose methods for testing */
+	picturefill._ = pf;
+
+	window.picturefillCFG = {
+		pf: pf,
+		push: function push(args) {
+			var name = args.shift();
+			if (typeof pf[name] === "function") {
+				pf[name].apply(pf, args);
+			} else {
+				cfg[name] = args[0];
+				if (alreadyRun) {
+					pf.fillImgs({ reselect: true });
+				}
+			}
+		}
+	};
+
+	while (setOptions && setOptions.length) {
+		window.picturefillCFG.push(setOptions.shift());
+	}
+
+	/* expose picturefill */
+	window.picturefill = picturefill;
+
+	/* expose picturefill */
+	if (( false ? undefined : _typeof(module)) === "object" && _typeof(module.exports) === "object") {
+		// CommonJS, just export
+		module.exports = picturefill;
+	} else if (true) {
+		// AMD support
+		!(__WEBPACK_AMD_DEFINE_RESULT__ = (function () {
+			return picturefill;
+		}).call(exports, __webpack_require__, exports, module),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	}
+
+	// IE8 evals this sync, so it must be the last thing we do
+	if (!pf.supPicture) {
+		types["image/webp"] = detectTypeSupport("image/webp", "data:image/webp;base64,UklGRkoAAABXRUJQVlA4WAoAAAAQAAAAAAAAAAAAQUxQSAwAAAABBxAR/Q9ERP8DAABWUDggGAAAADABAJ0BKgEAAQADADQlpAADcAD++/1QAA==");
+	}
+})(window, document);
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../webpack/buildin/module.js */ "./node_modules/webpack/buildin/module.js")(module)))
 
 /***/ }),
 
@@ -106,7 +1691,238 @@ eval("/* WEBPACK VAR INJECTION */(function(module) {var __WEBPACK_AMD_DEFINE_RES
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\n/*!\n * @copyright Copyright (c) 2017 IcoMoon.io\n * @license   Licensed under MIT license\n *            See https://github.com/Keyamoon/svgxuse\n * @version   1.2.6\n */\n/*jslint browser: true */\n/*global XDomainRequest, MutationObserver, window */\n(function () {\n    \"use strict\";\n\n    if (typeof window !== \"undefined\" && window.addEventListener) {\n        var cache = Object.create(null); // holds xhr objects to prevent multiple requests\n        var checkUseElems;\n        var tid; // timeout id\n        var debouncedCheck = function debouncedCheck() {\n            clearTimeout(tid);\n            tid = setTimeout(checkUseElems, 100);\n        };\n        var unobserveChanges = function unobserveChanges() {\n            return;\n        };\n        var observeChanges = function observeChanges() {\n            var observer;\n            window.addEventListener(\"resize\", debouncedCheck, false);\n            window.addEventListener(\"orientationchange\", debouncedCheck, false);\n            if (window.MutationObserver) {\n                observer = new MutationObserver(debouncedCheck);\n                observer.observe(document.documentElement, {\n                    childList: true,\n                    subtree: true,\n                    attributes: true\n                });\n                unobserveChanges = function unobserveChanges() {\n                    try {\n                        observer.disconnect();\n                        window.removeEventListener(\"resize\", debouncedCheck, false);\n                        window.removeEventListener(\"orientationchange\", debouncedCheck, false);\n                    } catch (ignore) {}\n                };\n            } else {\n                document.documentElement.addEventListener(\"DOMSubtreeModified\", debouncedCheck, false);\n                unobserveChanges = function unobserveChanges() {\n                    document.documentElement.removeEventListener(\"DOMSubtreeModified\", debouncedCheck, false);\n                    window.removeEventListener(\"resize\", debouncedCheck, false);\n                    window.removeEventListener(\"orientationchange\", debouncedCheck, false);\n                };\n            }\n        };\n        var createRequest = function createRequest(url) {\n            // In IE 9, cross origin requests can only be sent using XDomainRequest.\n            // XDomainRequest would fail if CORS headers are not set.\n            // Therefore, XDomainRequest should only be used with cross origin requests.\n            function getOrigin(loc) {\n                var a;\n                if (loc.protocol !== undefined) {\n                    a = loc;\n                } else {\n                    a = document.createElement(\"a\");\n                    a.href = loc;\n                }\n                return a.protocol.replace(/:/g, \"\") + a.host;\n            }\n            var Request;\n            var origin;\n            var origin2;\n            if (window.XMLHttpRequest) {\n                Request = new XMLHttpRequest();\n                origin = getOrigin(location);\n                origin2 = getOrigin(url);\n                if (Request.withCredentials === undefined && origin2 !== \"\" && origin2 !== origin) {\n                    Request = XDomainRequest || undefined;\n                } else {\n                    Request = XMLHttpRequest;\n                }\n            }\n            return Request;\n        };\n        var xlinkNS = \"http://www.w3.org/1999/xlink\";\n        checkUseElems = function checkUseElems() {\n            var base;\n            var bcr;\n            var fallback = \"\"; // optional fallback URL in case no base path to SVG file was given and no symbol definition was found.\n            var hash;\n            var href;\n            var i;\n            var inProgressCount = 0;\n            var isHidden;\n            var Request;\n            var url;\n            var uses;\n            var xhr;\n            function observeIfDone() {\n                // If done with making changes, start watching for chagnes in DOM again\n                inProgressCount -= 1;\n                if (inProgressCount === 0) {\n                    // if all xhrs were resolved\n                    unobserveChanges(); // make sure to remove old handlers\n                    observeChanges(); // watch for changes to DOM\n                }\n            }\n            function attrUpdateFunc(spec) {\n                return function () {\n                    if (cache[spec.base] !== true) {\n                        spec.useEl.setAttributeNS(xlinkNS, \"xlink:href\", \"#\" + spec.hash);\n                        if (spec.useEl.hasAttribute(\"href\")) {\n                            spec.useEl.setAttribute(\"href\", \"#\" + spec.hash);\n                        }\n                    }\n                };\n            }\n            function onloadFunc(xhr) {\n                return function () {\n                    var body = document.body;\n                    var x = document.createElement(\"x\");\n                    var svg;\n                    xhr.onload = null;\n                    x.innerHTML = xhr.responseText;\n                    svg = x.getElementsByTagName(\"svg\")[0];\n                    if (svg) {\n                        svg.setAttribute(\"aria-hidden\", \"true\");\n                        svg.style.position = \"absolute\";\n                        svg.style.width = 0;\n                        svg.style.height = 0;\n                        svg.style.overflow = \"hidden\";\n                        body.insertBefore(svg, body.firstChild);\n                    }\n                    observeIfDone();\n                };\n            }\n            function onErrorTimeout(xhr) {\n                return function () {\n                    xhr.onerror = null;\n                    xhr.ontimeout = null;\n                    observeIfDone();\n                };\n            }\n            unobserveChanges(); // stop watching for changes to DOM\n            // find all use elements\n            uses = document.getElementsByTagName(\"use\");\n            for (i = 0; i < uses.length; i += 1) {\n                try {\n                    bcr = uses[i].getBoundingClientRect();\n                } catch (ignore) {\n                    // failed to get bounding rectangle of the use element\n                    bcr = false;\n                }\n                href = uses[i].getAttribute(\"href\") || uses[i].getAttributeNS(xlinkNS, \"href\") || uses[i].getAttribute(\"xlink:href\");\n                if (href && href.split) {\n                    url = href.split(\"#\");\n                } else {\n                    url = [\"\", \"\"];\n                }\n                base = url[0];\n                hash = url[1];\n                isHidden = bcr && bcr.left === 0 && bcr.right === 0 && bcr.top === 0 && bcr.bottom === 0;\n                if (bcr && bcr.width === 0 && bcr.height === 0 && !isHidden) {\n                    // the use element is empty\n                    // if there is a reference to an external SVG, try to fetch it\n                    // use the optional fallback URL if there is no reference to an external SVG\n                    if (fallback && !base.length && hash && !document.getElementById(hash)) {\n                        base = fallback;\n                    }\n                    if (uses[i].hasAttribute(\"href\")) {\n                        uses[i].setAttributeNS(xlinkNS, \"xlink:href\", href);\n                    }\n                    if (base.length) {\n                        // schedule updating xlink:href\n                        xhr = cache[base];\n                        if (xhr !== true) {\n                            // true signifies that prepending the SVG was not required\n                            setTimeout(attrUpdateFunc({\n                                useEl: uses[i],\n                                base: base,\n                                hash: hash\n                            }), 0);\n                        }\n                        if (xhr === undefined) {\n                            Request = createRequest(base);\n                            if (Request !== undefined) {\n                                xhr = new Request();\n                                cache[base] = xhr;\n                                xhr.onload = onloadFunc(xhr);\n                                xhr.onerror = onErrorTimeout(xhr);\n                                xhr.ontimeout = onErrorTimeout(xhr);\n                                xhr.open(\"GET\", base);\n                                xhr.send();\n                                inProgressCount += 1;\n                            }\n                        }\n                    }\n                } else {\n                    if (!isHidden) {\n                        if (cache[base] === undefined) {\n                            // remember this URL if the use element was not empty and no request was sent\n                            cache[base] = true;\n                        } else if (cache[base].onload) {\n                            // if it turns out that prepending the SVG is not necessary,\n                            // abort the in-progress xhr.\n                            cache[base].abort();\n                            delete cache[base].onload;\n                            cache[base] = true;\n                        }\n                    } else if (base.length && cache[base]) {\n                        setTimeout(attrUpdateFunc({\n                            useEl: uses[i],\n                            base: base,\n                            hash: hash\n                        }), 0);\n                    }\n                }\n            }\n            uses = \"\";\n            inProgressCount += 1;\n            observeIfDone();\n        };\n        var _winLoad;\n        _winLoad = function winLoad() {\n            window.removeEventListener(\"load\", _winLoad, false); // to prevent memory leaks\n            tid = setTimeout(checkUseElems, 0);\n        };\n        if (document.readyState !== \"complete\") {\n            // The load event fires when all resources have finished loading, which allows detecting whether SVG use elements are empty.\n            window.addEventListener(\"load\", _winLoad, false);\n        } else {\n            // No need to add a listener if the document is already loaded, initialize immediately.\n            _winLoad();\n        }\n    }\n})();\n\n//# sourceURL=webpack:///./node_modules/svgxuse/svgxuse.js?");
+
+
+/*!
+ * @copyright Copyright (c) 2017 IcoMoon.io
+ * @license   Licensed under MIT license
+ *            See https://github.com/Keyamoon/svgxuse
+ * @version   1.2.6
+ */
+/*jslint browser: true */
+/*global XDomainRequest, MutationObserver, window */
+(function () {
+    "use strict";
+
+    if (typeof window !== "undefined" && window.addEventListener) {
+        var cache = Object.create(null); // holds xhr objects to prevent multiple requests
+        var checkUseElems;
+        var tid; // timeout id
+        var debouncedCheck = function debouncedCheck() {
+            clearTimeout(tid);
+            tid = setTimeout(checkUseElems, 100);
+        };
+        var unobserveChanges = function unobserveChanges() {
+            return;
+        };
+        var observeChanges = function observeChanges() {
+            var observer;
+            window.addEventListener("resize", debouncedCheck, false);
+            window.addEventListener("orientationchange", debouncedCheck, false);
+            if (window.MutationObserver) {
+                observer = new MutationObserver(debouncedCheck);
+                observer.observe(document.documentElement, {
+                    childList: true,
+                    subtree: true,
+                    attributes: true
+                });
+                unobserveChanges = function unobserveChanges() {
+                    try {
+                        observer.disconnect();
+                        window.removeEventListener("resize", debouncedCheck, false);
+                        window.removeEventListener("orientationchange", debouncedCheck, false);
+                    } catch (ignore) {}
+                };
+            } else {
+                document.documentElement.addEventListener("DOMSubtreeModified", debouncedCheck, false);
+                unobserveChanges = function unobserveChanges() {
+                    document.documentElement.removeEventListener("DOMSubtreeModified", debouncedCheck, false);
+                    window.removeEventListener("resize", debouncedCheck, false);
+                    window.removeEventListener("orientationchange", debouncedCheck, false);
+                };
+            }
+        };
+        var createRequest = function createRequest(url) {
+            // In IE 9, cross origin requests can only be sent using XDomainRequest.
+            // XDomainRequest would fail if CORS headers are not set.
+            // Therefore, XDomainRequest should only be used with cross origin requests.
+            function getOrigin(loc) {
+                var a;
+                if (loc.protocol !== undefined) {
+                    a = loc;
+                } else {
+                    a = document.createElement("a");
+                    a.href = loc;
+                }
+                return a.protocol.replace(/:/g, "") + a.host;
+            }
+            var Request;
+            var origin;
+            var origin2;
+            if (window.XMLHttpRequest) {
+                Request = new XMLHttpRequest();
+                origin = getOrigin(location);
+                origin2 = getOrigin(url);
+                if (Request.withCredentials === undefined && origin2 !== "" && origin2 !== origin) {
+                    Request = XDomainRequest || undefined;
+                } else {
+                    Request = XMLHttpRequest;
+                }
+            }
+            return Request;
+        };
+        var xlinkNS = "http://www.w3.org/1999/xlink";
+        checkUseElems = function checkUseElems() {
+            var base;
+            var bcr;
+            var fallback = ""; // optional fallback URL in case no base path to SVG file was given and no symbol definition was found.
+            var hash;
+            var href;
+            var i;
+            var inProgressCount = 0;
+            var isHidden;
+            var Request;
+            var url;
+            var uses;
+            var xhr;
+            function observeIfDone() {
+                // If done with making changes, start watching for chagnes in DOM again
+                inProgressCount -= 1;
+                if (inProgressCount === 0) {
+                    // if all xhrs were resolved
+                    unobserveChanges(); // make sure to remove old handlers
+                    observeChanges(); // watch for changes to DOM
+                }
+            }
+            function attrUpdateFunc(spec) {
+                return function () {
+                    if (cache[spec.base] !== true) {
+                        spec.useEl.setAttributeNS(xlinkNS, "xlink:href", "#" + spec.hash);
+                        if (spec.useEl.hasAttribute("href")) {
+                            spec.useEl.setAttribute("href", "#" + spec.hash);
+                        }
+                    }
+                };
+            }
+            function onloadFunc(xhr) {
+                return function () {
+                    var body = document.body;
+                    var x = document.createElement("x");
+                    var svg;
+                    xhr.onload = null;
+                    x.innerHTML = xhr.responseText;
+                    svg = x.getElementsByTagName("svg")[0];
+                    if (svg) {
+                        svg.setAttribute("aria-hidden", "true");
+                        svg.style.position = "absolute";
+                        svg.style.width = 0;
+                        svg.style.height = 0;
+                        svg.style.overflow = "hidden";
+                        body.insertBefore(svg, body.firstChild);
+                    }
+                    observeIfDone();
+                };
+            }
+            function onErrorTimeout(xhr) {
+                return function () {
+                    xhr.onerror = null;
+                    xhr.ontimeout = null;
+                    observeIfDone();
+                };
+            }
+            unobserveChanges(); // stop watching for changes to DOM
+            // find all use elements
+            uses = document.getElementsByTagName("use");
+            for (i = 0; i < uses.length; i += 1) {
+                try {
+                    bcr = uses[i].getBoundingClientRect();
+                } catch (ignore) {
+                    // failed to get bounding rectangle of the use element
+                    bcr = false;
+                }
+                href = uses[i].getAttribute("href") || uses[i].getAttributeNS(xlinkNS, "href") || uses[i].getAttribute("xlink:href");
+                if (href && href.split) {
+                    url = href.split("#");
+                } else {
+                    url = ["", ""];
+                }
+                base = url[0];
+                hash = url[1];
+                isHidden = bcr && bcr.left === 0 && bcr.right === 0 && bcr.top === 0 && bcr.bottom === 0;
+                if (bcr && bcr.width === 0 && bcr.height === 0 && !isHidden) {
+                    // the use element is empty
+                    // if there is a reference to an external SVG, try to fetch it
+                    // use the optional fallback URL if there is no reference to an external SVG
+                    if (fallback && !base.length && hash && !document.getElementById(hash)) {
+                        base = fallback;
+                    }
+                    if (uses[i].hasAttribute("href")) {
+                        uses[i].setAttributeNS(xlinkNS, "xlink:href", href);
+                    }
+                    if (base.length) {
+                        // schedule updating xlink:href
+                        xhr = cache[base];
+                        if (xhr !== true) {
+                            // true signifies that prepending the SVG was not required
+                            setTimeout(attrUpdateFunc({
+                                useEl: uses[i],
+                                base: base,
+                                hash: hash
+                            }), 0);
+                        }
+                        if (xhr === undefined) {
+                            Request = createRequest(base);
+                            if (Request !== undefined) {
+                                xhr = new Request();
+                                cache[base] = xhr;
+                                xhr.onload = onloadFunc(xhr);
+                                xhr.onerror = onErrorTimeout(xhr);
+                                xhr.ontimeout = onErrorTimeout(xhr);
+                                xhr.open("GET", base);
+                                xhr.send();
+                                inProgressCount += 1;
+                            }
+                        }
+                    }
+                } else {
+                    if (!isHidden) {
+                        if (cache[base] === undefined) {
+                            // remember this URL if the use element was not empty and no request was sent
+                            cache[base] = true;
+                        } else if (cache[base].onload) {
+                            // if it turns out that prepending the SVG is not necessary,
+                            // abort the in-progress xhr.
+                            cache[base].abort();
+                            delete cache[base].onload;
+                            cache[base] = true;
+                        }
+                    } else if (base.length && cache[base]) {
+                        setTimeout(attrUpdateFunc({
+                            useEl: uses[i],
+                            base: base,
+                            hash: hash
+                        }), 0);
+                    }
+                }
+            }
+            uses = "";
+            inProgressCount += 1;
+            observeIfDone();
+        };
+        var _winLoad;
+        _winLoad = function winLoad() {
+            window.removeEventListener("load", _winLoad, false); // to prevent memory leaks
+            tid = setTimeout(checkUseElems, 0);
+        };
+        if (document.readyState !== "complete") {
+            // The load event fires when all resources have finished loading, which allows detecting whether SVG use elements are empty.
+            window.addEventListener("load", _winLoad, false);
+        } else {
+            // No need to add a listener if the document is already loaded, initialize immediately.
+            _winLoad();
+        }
+    }
+})();
 
 /***/ }),
 
@@ -118,7 +1934,30 @@ eval("\n\n/*!\n * @copyright Copyright (c) 2017 IcoMoon.io\n * @license   Licens
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nmodule.exports = function (module) {\n\tif (!module.webpackPolyfill) {\n\t\tmodule.deprecate = function () {};\n\t\tmodule.paths = [];\n\t\t// module.parent = undefined by default\n\t\tif (!module.children) module.children = [];\n\t\tObject.defineProperty(module, \"loaded\", {\n\t\t\tenumerable: true,\n\t\t\tget: function get() {\n\t\t\t\treturn module.l;\n\t\t\t}\n\t\t});\n\t\tObject.defineProperty(module, \"id\", {\n\t\t\tenumerable: true,\n\t\t\tget: function get() {\n\t\t\t\treturn module.i;\n\t\t\t}\n\t\t});\n\t\tmodule.webpackPolyfill = 1;\n\t}\n\treturn module;\n};\n\n//# sourceURL=webpack:///(webpack)/buildin/module.js?");
+
+
+module.exports = function (module) {
+	if (!module.webpackPolyfill) {
+		module.deprecate = function () {};
+		module.paths = [];
+		// module.parent = undefined by default
+		if (!module.children) module.children = [];
+		Object.defineProperty(module, "loaded", {
+			enumerable: true,
+			get: function get() {
+				return module.l;
+			}
+		});
+		Object.defineProperty(module, "id", {
+			enumerable: true,
+			get: function get() {
+				return module.i;
+			}
+		});
+		module.webpackPolyfill = 1;
+	}
+	return module;
+};
 
 /***/ }),
 
@@ -130,7 +1969,13 @@ eval("\n\nmodule.exports = function (module) {\n\tif (!module.webpackPolyfill) {
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\n__webpack_require__(/*! ../../temp/scripts/modernizr */ \"./temp/scripts/modernizr.js\");\n\n__webpack_require__(/*! picturefill */ \"./node_modules/picturefill/dist/picturefill.js\");\n\n__webpack_require__(/*! svgxuse */ \"./node_modules/svgxuse/svgxuse.js\");\n\n//# sourceURL=webpack:///./src/scripts/vendor.js?");
+
+
+__webpack_require__(/*! ../../temp/scripts/modernizr */ "./temp/scripts/modernizr.js");
+
+__webpack_require__(/*! picturefill */ "./node_modules/picturefill/dist/picturefill.js");
+
+__webpack_require__(/*! svgxuse */ "./node_modules/svgxuse/svgxuse.js");
 
 /***/ }),
 
@@ -142,8 +1987,365 @@ eval("\n\n__webpack_require__(/*! ../../temp/scripts/modernizr */ \"./temp/scrip
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar _typeof = typeof Symbol === \"function\" && typeof Symbol.iterator === \"symbol\" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === \"function\" && obj.constructor === Symbol && obj !== Symbol.prototype ? \"symbol\" : typeof obj; };\n\n/*!\n * modernizr v3.6.0\n * Build https://modernizr.com/download?-svg-video-setclasses-dontmin\n *\n * Copyright (c)\n *  Faruk Ates\n *  Paul Irish\n *  Alex Sexton\n *  Ryan Seddon\n *  Patrick Kettner\n *  Stu Cox\n *  Richard Herrera\n\n * MIT License\n */\n\n/*\n * Modernizr tests which native CSS3 and HTML5 features are available in the\n * current UA and makes the results available to you in two ways: as properties on\n * a global `Modernizr` object, and as classes on the `<html>` element. This\n * information allows you to progressively enhance your pages with a granular level\n * of control over the experience.\n*/\n\n;(function (window, document, undefined) {\n  var tests = [];\n\n  /**\n   *\n   * ModernizrProto is the constructor for Modernizr\n   *\n   * @class\n   * @access public\n   */\n\n  var ModernizrProto = {\n    // The current version, dummy\n    _version: '3.6.0',\n\n    // Any settings that don't work as separate modules\n    // can go in here as configuration.\n    _config: {\n      'classPrefix': '',\n      'enableClasses': true,\n      'enableJSClass': true,\n      'usePrefixes': true\n    },\n\n    // Queue of tests\n    _q: [],\n\n    // Stub these for people who are listening\n    on: function on(test, cb) {\n      // I don't really think people should do this, but we can\n      // safe guard it a bit.\n      // -- NOTE:: this gets WAY overridden in src/addTest for actual async tests.\n      // This is in case people listen to synchronous tests. I would leave it out,\n      // but the code to *disallow* sync tests in the real version of this\n      // function is actually larger than this.\n      var self = this;\n      setTimeout(function () {\n        cb(self[test]);\n      }, 0);\n    },\n\n    addTest: function addTest(name, fn, options) {\n      tests.push({ name: name, fn: fn, options: options });\n    },\n\n    addAsyncTest: function addAsyncTest(fn) {\n      tests.push({ name: null, fn: fn });\n    }\n  };\n\n  // Fake some of Object.create so we can force non test results to be non \"own\" properties.\n  var Modernizr = function Modernizr() {};\n  Modernizr.prototype = ModernizrProto;\n\n  // Leak modernizr globally when you `require` it rather than force it here.\n  // Overwrite name so constructor name is nicer :D\n  Modernizr = new Modernizr();\n\n  var classes = [];\n\n  /**\n   * is returns a boolean if the typeof an obj is exactly type.\n   *\n   * @access private\n   * @function is\n   * @param {*} obj - A thing we want to check the type of\n   * @param {string} type - A string to compare the typeof against\n   * @returns {boolean}\n   */\n\n  function is(obj, type) {\n    return (typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) === type;\n  }\n  ;\n\n  /**\n   * Run through all tests and detect their support in the current UA.\n   *\n   * @access private\n   */\n\n  function testRunner() {\n    var featureNames;\n    var feature;\n    var aliasIdx;\n    var result;\n    var nameIdx;\n    var featureName;\n    var featureNameSplit;\n\n    for (var featureIdx in tests) {\n      if (tests.hasOwnProperty(featureIdx)) {\n        featureNames = [];\n        feature = tests[featureIdx];\n        // run the test, throw the return value into the Modernizr,\n        // then based on that boolean, define an appropriate className\n        // and push it into an array of classes we'll join later.\n        //\n        // If there is no name, it's an 'async' test that is run,\n        // but not directly added to the object. That should\n        // be done with a post-run addTest call.\n        if (feature.name) {\n          featureNames.push(feature.name.toLowerCase());\n\n          if (feature.options && feature.options.aliases && feature.options.aliases.length) {\n            // Add all the aliases into the names list\n            for (aliasIdx = 0; aliasIdx < feature.options.aliases.length; aliasIdx++) {\n              featureNames.push(feature.options.aliases[aliasIdx].toLowerCase());\n            }\n          }\n        }\n\n        // Run the test, or use the raw value if it's not a function\n        result = is(feature.fn, 'function') ? feature.fn() : feature.fn;\n\n        // Set each of the names on the Modernizr object\n        for (nameIdx = 0; nameIdx < featureNames.length; nameIdx++) {\n          featureName = featureNames[nameIdx];\n          // Support dot properties as sub tests. We don't do checking to make sure\n          // that the implied parent tests have been added. You must call them in\n          // order (either in the test, or make the parent test a dependency).\n          //\n          // Cap it to TWO to make the logic simple and because who needs that kind of subtesting\n          // hashtag famous last words\n          featureNameSplit = featureName.split('.');\n\n          if (featureNameSplit.length === 1) {\n            Modernizr[featureNameSplit[0]] = result;\n          } else {\n            // cast to a Boolean, if not one already\n            if (Modernizr[featureNameSplit[0]] && !(Modernizr[featureNameSplit[0]] instanceof Boolean)) {\n              Modernizr[featureNameSplit[0]] = new Boolean(Modernizr[featureNameSplit[0]]);\n            }\n\n            Modernizr[featureNameSplit[0]][featureNameSplit[1]] = result;\n          }\n\n          classes.push((result ? '' : 'no-') + featureNameSplit.join('-'));\n        }\n      }\n    }\n  }\n  ;\n\n  /**\n   * docElement is a convenience wrapper to grab the root element of the document\n   *\n   * @access private\n   * @returns {HTMLElement|SVGElement} The root element of the document\n   */\n\n  var docElement = document.documentElement;\n\n  /**\n   * A convenience helper to check if the document we are running in is an SVG document\n   *\n   * @access private\n   * @returns {boolean}\n   */\n\n  var isSVG = docElement.nodeName.toLowerCase() === 'svg';\n\n  /**\n   * setClasses takes an array of class names and adds them to the root element\n   *\n   * @access private\n   * @function setClasses\n   * @param {string[]} classes - Array of class names\n   */\n\n  // Pass in an and array of class names, e.g.:\n  //  ['no-webp', 'borderradius', ...]\n  function setClasses(classes) {\n    var className = docElement.className;\n    var classPrefix = Modernizr._config.classPrefix || '';\n\n    if (isSVG) {\n      className = className.baseVal;\n    }\n\n    // Change `no-js` to `js` (independently of the `enableClasses` option)\n    // Handle classPrefix on this too\n    if (Modernizr._config.enableJSClass) {\n      var reJS = new RegExp('(^|\\\\s)' + classPrefix + 'no-js(\\\\s|$)');\n      className = className.replace(reJS, '$1' + classPrefix + 'js$2');\n    }\n\n    if (Modernizr._config.enableClasses) {\n      // Add the new classes\n      className += ' ' + classPrefix + classes.join(' ' + classPrefix);\n      if (isSVG) {\n        docElement.className.baseVal = className;\n      } else {\n        docElement.className = className;\n      }\n    }\n  }\n\n  ;\n  /*!\n  {\n    \"name\": \"SVG\",\n    \"property\": \"svg\",\n    \"caniuse\": \"svg\",\n    \"tags\": [\"svg\"],\n    \"authors\": [\"Erik Dahlstrom\"],\n    \"polyfills\": [\n      \"svgweb\",\n      \"raphael\",\n      \"amplesdk\",\n      \"canvg\",\n      \"svg-boilerplate\",\n      \"sie\",\n      \"dojogfx\",\n      \"fabricjs\"\n    ]\n  }\n  !*/\n  /* DOC\n  Detects support for SVG in `<embed>` or `<object>` elements.\n  */\n\n  Modernizr.addTest('svg', !!document.createElementNS && !!document.createElementNS('http://www.w3.org/2000/svg', 'svg').createSVGRect);\n\n  /**\n   * createElement is a convenience wrapper around document.createElement. Since we\n   * use createElement all over the place, this allows for (slightly) smaller code\n   * as well as abstracting away issues with creating elements in contexts other than\n   * HTML documents (e.g. SVG documents).\n   *\n   * @access private\n   * @function createElement\n   * @returns {HTMLElement|SVGElement} An HTML or SVG element\n   */\n\n  function createElement() {\n    if (typeof document.createElement !== 'function') {\n      // This is the case in IE7, where the type of createElement is \"object\".\n      // For this reason, we cannot call apply() as Object is not a Function.\n      return document.createElement(arguments[0]);\n    } else if (isSVG) {\n      return document.createElementNS.call(document, 'http://www.w3.org/2000/svg', arguments[0]);\n    } else {\n      return document.createElement.apply(document, arguments);\n    }\n  }\n\n  ;\n  /*!\n  {\n    \"name\": \"HTML5 Video\",\n    \"property\": \"video\",\n    \"caniuse\": \"video\",\n    \"tags\": [\"html5\"],\n    \"knownBugs\": [\n      \"Without QuickTime, `Modernizr.video.h264` will be `undefined`; https://github.com/Modernizr/Modernizr/issues/546\"\n    ],\n    \"polyfills\": [\n      \"html5media\",\n      \"mediaelementjs\",\n      \"sublimevideo\",\n      \"videojs\",\n      \"leanbackplayer\",\n      \"videoforeverybody\"\n    ]\n  }\n  !*/\n  /* DOC\n  Detects support for the video element, as well as testing what types of content it supports.\n  \n  Subproperties are provided to describe support for `ogg`, `h264` and `webm` formats, e.g.:\n  \n  ```javascript\n  Modernizr.video         // true\n  Modernizr.video.ogg     // 'probably'\n  ```\n  */\n\n  // Codec values from : github.com/NielsLeenheer/html5test/blob/9106a8/index.html#L845\n  //                     thx to NielsLeenheer and zcorpan\n\n  // Note: in some older browsers, \"no\" was a return value instead of empty string.\n  //   It was live in FF3.5.0 and 3.5.1, but fixed in 3.5.2\n  //   It was also live in Safari 4.0.0 - 4.0.4, but fixed in 4.0.5\n\n  Modernizr.addTest('video', function () {\n    var elem = createElement('video');\n    var bool = false;\n\n    // IE9 Running on Windows Server SKU can cause an exception to be thrown, bug #224\n    try {\n      bool = !!elem.canPlayType;\n      if (bool) {\n        bool = new Boolean(bool);\n        bool.ogg = elem.canPlayType('video/ogg; codecs=\"theora\"').replace(/^no$/, '');\n\n        // Without QuickTime, this value will be `undefined`. github.com/Modernizr/Modernizr/issues/546\n        bool.h264 = elem.canPlayType('video/mp4; codecs=\"avc1.42E01E\"').replace(/^no$/, '');\n\n        bool.webm = elem.canPlayType('video/webm; codecs=\"vp8, vorbis\"').replace(/^no$/, '');\n\n        bool.vp9 = elem.canPlayType('video/webm; codecs=\"vp9\"').replace(/^no$/, '');\n\n        bool.hls = elem.canPlayType('application/x-mpegURL; codecs=\"avc1.42E01E\"').replace(/^no$/, '');\n      }\n    } catch (e) {}\n\n    return bool;\n  });\n\n  // Run each test\n  testRunner();\n\n  // Remove the \"no-js\" class if it exists\n  setClasses(classes);\n\n  delete ModernizrProto.addTest;\n  delete ModernizrProto.addAsyncTest;\n\n  // Run the things that are supposed to run after the tests\n  for (var i = 0; i < Modernizr._q.length; i++) {\n    Modernizr._q[i]();\n  }\n\n  // Leak Modernizr namespace\n  window.Modernizr = Modernizr;\n\n  ;\n})(window, document);\n\n//# sourceURL=webpack:///./temp/scripts/modernizr.js?");
+
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+/*!
+ * modernizr v3.6.0
+ * Build https://modernizr.com/download?-svg-video-setclasses-dontmin
+ *
+ * Copyright (c)
+ *  Faruk Ates
+ *  Paul Irish
+ *  Alex Sexton
+ *  Ryan Seddon
+ *  Patrick Kettner
+ *  Stu Cox
+ *  Richard Herrera
+
+ * MIT License
+ */
+
+/*
+ * Modernizr tests which native CSS3 and HTML5 features are available in the
+ * current UA and makes the results available to you in two ways: as properties on
+ * a global `Modernizr` object, and as classes on the `<html>` element. This
+ * information allows you to progressively enhance your pages with a granular level
+ * of control over the experience.
+*/
+
+;(function (window, document, undefined) {
+  var tests = [];
+
+  /**
+   *
+   * ModernizrProto is the constructor for Modernizr
+   *
+   * @class
+   * @access public
+   */
+
+  var ModernizrProto = {
+    // The current version, dummy
+    _version: '3.6.0',
+
+    // Any settings that don't work as separate modules
+    // can go in here as configuration.
+    _config: {
+      'classPrefix': '',
+      'enableClasses': true,
+      'enableJSClass': true,
+      'usePrefixes': true
+    },
+
+    // Queue of tests
+    _q: [],
+
+    // Stub these for people who are listening
+    on: function on(test, cb) {
+      // I don't really think people should do this, but we can
+      // safe guard it a bit.
+      // -- NOTE:: this gets WAY overridden in src/addTest for actual async tests.
+      // This is in case people listen to synchronous tests. I would leave it out,
+      // but the code to *disallow* sync tests in the real version of this
+      // function is actually larger than this.
+      var self = this;
+      setTimeout(function () {
+        cb(self[test]);
+      }, 0);
+    },
+
+    addTest: function addTest(name, fn, options) {
+      tests.push({ name: name, fn: fn, options: options });
+    },
+
+    addAsyncTest: function addAsyncTest(fn) {
+      tests.push({ name: null, fn: fn });
+    }
+  };
+
+  // Fake some of Object.create so we can force non test results to be non "own" properties.
+  var Modernizr = function Modernizr() {};
+  Modernizr.prototype = ModernizrProto;
+
+  // Leak modernizr globally when you `require` it rather than force it here.
+  // Overwrite name so constructor name is nicer :D
+  Modernizr = new Modernizr();
+
+  var classes = [];
+
+  /**
+   * is returns a boolean if the typeof an obj is exactly type.
+   *
+   * @access private
+   * @function is
+   * @param {*} obj - A thing we want to check the type of
+   * @param {string} type - A string to compare the typeof against
+   * @returns {boolean}
+   */
+
+  function is(obj, type) {
+    return (typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) === type;
+  }
+  ;
+
+  /**
+   * Run through all tests and detect their support in the current UA.
+   *
+   * @access private
+   */
+
+  function testRunner() {
+    var featureNames;
+    var feature;
+    var aliasIdx;
+    var result;
+    var nameIdx;
+    var featureName;
+    var featureNameSplit;
+
+    for (var featureIdx in tests) {
+      if (tests.hasOwnProperty(featureIdx)) {
+        featureNames = [];
+        feature = tests[featureIdx];
+        // run the test, throw the return value into the Modernizr,
+        // then based on that boolean, define an appropriate className
+        // and push it into an array of classes we'll join later.
+        //
+        // If there is no name, it's an 'async' test that is run,
+        // but not directly added to the object. That should
+        // be done with a post-run addTest call.
+        if (feature.name) {
+          featureNames.push(feature.name.toLowerCase());
+
+          if (feature.options && feature.options.aliases && feature.options.aliases.length) {
+            // Add all the aliases into the names list
+            for (aliasIdx = 0; aliasIdx < feature.options.aliases.length; aliasIdx++) {
+              featureNames.push(feature.options.aliases[aliasIdx].toLowerCase());
+            }
+          }
+        }
+
+        // Run the test, or use the raw value if it's not a function
+        result = is(feature.fn, 'function') ? feature.fn() : feature.fn;
+
+        // Set each of the names on the Modernizr object
+        for (nameIdx = 0; nameIdx < featureNames.length; nameIdx++) {
+          featureName = featureNames[nameIdx];
+          // Support dot properties as sub tests. We don't do checking to make sure
+          // that the implied parent tests have been added. You must call them in
+          // order (either in the test, or make the parent test a dependency).
+          //
+          // Cap it to TWO to make the logic simple and because who needs that kind of subtesting
+          // hashtag famous last words
+          featureNameSplit = featureName.split('.');
+
+          if (featureNameSplit.length === 1) {
+            Modernizr[featureNameSplit[0]] = result;
+          } else {
+            // cast to a Boolean, if not one already
+            if (Modernizr[featureNameSplit[0]] && !(Modernizr[featureNameSplit[0]] instanceof Boolean)) {
+              Modernizr[featureNameSplit[0]] = new Boolean(Modernizr[featureNameSplit[0]]);
+            }
+
+            Modernizr[featureNameSplit[0]][featureNameSplit[1]] = result;
+          }
+
+          classes.push((result ? '' : 'no-') + featureNameSplit.join('-'));
+        }
+      }
+    }
+  }
+  ;
+
+  /**
+   * docElement is a convenience wrapper to grab the root element of the document
+   *
+   * @access private
+   * @returns {HTMLElement|SVGElement} The root element of the document
+   */
+
+  var docElement = document.documentElement;
+
+  /**
+   * A convenience helper to check if the document we are running in is an SVG document
+   *
+   * @access private
+   * @returns {boolean}
+   */
+
+  var isSVG = docElement.nodeName.toLowerCase() === 'svg';
+
+  /**
+   * setClasses takes an array of class names and adds them to the root element
+   *
+   * @access private
+   * @function setClasses
+   * @param {string[]} classes - Array of class names
+   */
+
+  // Pass in an and array of class names, e.g.:
+  //  ['no-webp', 'borderradius', ...]
+  function setClasses(classes) {
+    var className = docElement.className;
+    var classPrefix = Modernizr._config.classPrefix || '';
+
+    if (isSVG) {
+      className = className.baseVal;
+    }
+
+    // Change `no-js` to `js` (independently of the `enableClasses` option)
+    // Handle classPrefix on this too
+    if (Modernizr._config.enableJSClass) {
+      var reJS = new RegExp('(^|\\s)' + classPrefix + 'no-js(\\s|$)');
+      className = className.replace(reJS, '$1' + classPrefix + 'js$2');
+    }
+
+    if (Modernizr._config.enableClasses) {
+      // Add the new classes
+      className += ' ' + classPrefix + classes.join(' ' + classPrefix);
+      if (isSVG) {
+        docElement.className.baseVal = className;
+      } else {
+        docElement.className = className;
+      }
+    }
+  }
+
+  ;
+  /*!
+  {
+    "name": "SVG",
+    "property": "svg",
+    "caniuse": "svg",
+    "tags": ["svg"],
+    "authors": ["Erik Dahlstrom"],
+    "polyfills": [
+      "svgweb",
+      "raphael",
+      "amplesdk",
+      "canvg",
+      "svg-boilerplate",
+      "sie",
+      "dojogfx",
+      "fabricjs"
+    ]
+  }
+  !*/
+  /* DOC
+  Detects support for SVG in `<embed>` or `<object>` elements.
+  */
+
+  Modernizr.addTest('svg', !!document.createElementNS && !!document.createElementNS('http://www.w3.org/2000/svg', 'svg').createSVGRect);
+
+  /**
+   * createElement is a convenience wrapper around document.createElement. Since we
+   * use createElement all over the place, this allows for (slightly) smaller code
+   * as well as abstracting away issues with creating elements in contexts other than
+   * HTML documents (e.g. SVG documents).
+   *
+   * @access private
+   * @function createElement
+   * @returns {HTMLElement|SVGElement} An HTML or SVG element
+   */
+
+  function createElement() {
+    if (typeof document.createElement !== 'function') {
+      // This is the case in IE7, where the type of createElement is "object".
+      // For this reason, we cannot call apply() as Object is not a Function.
+      return document.createElement(arguments[0]);
+    } else if (isSVG) {
+      return document.createElementNS.call(document, 'http://www.w3.org/2000/svg', arguments[0]);
+    } else {
+      return document.createElement.apply(document, arguments);
+    }
+  }
+
+  ;
+  /*!
+  {
+    "name": "HTML5 Video",
+    "property": "video",
+    "caniuse": "video",
+    "tags": ["html5"],
+    "knownBugs": [
+      "Without QuickTime, `Modernizr.video.h264` will be `undefined`; https://github.com/Modernizr/Modernizr/issues/546"
+    ],
+    "polyfills": [
+      "html5media",
+      "mediaelementjs",
+      "sublimevideo",
+      "videojs",
+      "leanbackplayer",
+      "videoforeverybody"
+    ]
+  }
+  !*/
+  /* DOC
+  Detects support for the video element, as well as testing what types of content it supports.
+  
+  Subproperties are provided to describe support for `ogg`, `h264` and `webm` formats, e.g.:
+  
+  ```javascript
+  Modernizr.video         // true
+  Modernizr.video.ogg     // 'probably'
+  ```
+  */
+
+  // Codec values from : github.com/NielsLeenheer/html5test/blob/9106a8/index.html#L845
+  //                     thx to NielsLeenheer and zcorpan
+
+  // Note: in some older browsers, "no" was a return value instead of empty string.
+  //   It was live in FF3.5.0 and 3.5.1, but fixed in 3.5.2
+  //   It was also live in Safari 4.0.0 - 4.0.4, but fixed in 4.0.5
+
+  Modernizr.addTest('video', function () {
+    var elem = createElement('video');
+    var bool = false;
+
+    // IE9 Running on Windows Server SKU can cause an exception to be thrown, bug #224
+    try {
+      bool = !!elem.canPlayType;
+      if (bool) {
+        bool = new Boolean(bool);
+        bool.ogg = elem.canPlayType('video/ogg; codecs="theora"').replace(/^no$/, '');
+
+        // Without QuickTime, this value will be `undefined`. github.com/Modernizr/Modernizr/issues/546
+        bool.h264 = elem.canPlayType('video/mp4; codecs="avc1.42E01E"').replace(/^no$/, '');
+
+        bool.webm = elem.canPlayType('video/webm; codecs="vp8, vorbis"').replace(/^no$/, '');
+
+        bool.vp9 = elem.canPlayType('video/webm; codecs="vp9"').replace(/^no$/, '');
+
+        bool.hls = elem.canPlayType('application/x-mpegURL; codecs="avc1.42E01E"').replace(/^no$/, '');
+      }
+    } catch (e) {}
+
+    return bool;
+  });
+
+  // Run each test
+  testRunner();
+
+  // Remove the "no-js" class if it exists
+  setClasses(classes);
+
+  delete ModernizrProto.addTest;
+  delete ModernizrProto.addAsyncTest;
+
+  // Run the things that are supposed to run after the tests
+  for (var i = 0; i < Modernizr._q.length; i++) {
+    Modernizr._q[i]();
+  }
+
+  // Leak Modernizr namespace
+  window.Modernizr = Modernizr;
+
+  ;
+})(window, document);
 
 /***/ })
 
 /******/ });
+//# sourceMappingURL=vendor.js.map
