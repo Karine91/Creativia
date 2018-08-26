@@ -5,7 +5,12 @@ var gulp = require("gulp"),
   uglify = require("gulp-uglify"),
   browserSync = require("browser-sync").create(),
   webpack = require("webpack"),
-  pug = require("gulp-pug");
+  pug = require("gulp-pug"),
+  postcss = require("gulp-postcss"),
+  autoprefexer = require("autoprefixer"),
+  sass = require("gulp-sass"),
+  sourcemaps = require("gulp-sourcemaps"),
+  importCss = require("gulp-import-css");
 
 gulp.task("previewDist", function() {
   browserSync.init({
@@ -33,9 +38,9 @@ gulp.task("copyGeneralFiles", function() {
 
 gulp.task("compressedStyles", function() {
   return gulp
-    .src("./dist/*.css")
+    .src("./dist/assets/styles/*.css")
     .pipe(cssnano())
-    .pipe(gulp.dest("./dist/"));
+    .pipe(gulp.dest("./dist/assets/styles/"));
 });
 
 gulp.task("prodScripts", function(done) {
@@ -82,12 +87,27 @@ gulp.task("copyTemplates", function() {
     .pipe(gulp.dest("./dist"));
 });
 
+gulp.task("buildStyles", function() {
+  return gulp
+    .src("./src/styles/main.scss")
+    .pipe(sourcemaps.init())
+    .pipe(sass())
+    .on("error", function(err) {
+      console.log(err.toString());
+      this.emit("end");
+    })
+    .pipe(importCss())
+    .pipe(postcss([autoprefexer]))
+    .pipe(sourcemaps.write("./"))
+    .pipe(gulp.dest("./dist/assets/styles"));
+});
+
 gulp.task(
   "build",
   gulp.series(
     "deleteDistFolder",
     "copyTemplates",
-    "styles",
+    "buildStyles",
     "optimazeImages",
     "compressedStyles",
     "prodScripts",
