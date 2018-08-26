@@ -11,10 +11,7 @@ gulp.task("watch", function() {
     .watch("./src/**/*.pug")
     .on("change", gulp.series("templates", browserSync.reload));
   gulp.watch("./src/styles/**/*.scss", gulp.series("styles", "cssInject"));
-  gulp.watch(
-    "./src/scripts/**/*.js",
-    gulp.series("modernizr", "scripts", "scriptsRefresh")
-  );
+  gulp.watch("./src/scripts/**/*.js", gulp.series("scripts", "scriptsRefresh"));
 });
 
 gulp.task("scriptsRefresh", function(done) {
