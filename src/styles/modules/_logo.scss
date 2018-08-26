@@ -1,12 +1,19 @@
 .logo {
   position: absolute;
+  z-index: 10;
   display: inline-flex;
-  width: 250px;
+
+  height: 77px;
   top: -4px;
   left: 0;
   right: 0;
   margin: 0 auto;
   cursor: pointer;
+
+  @include small {
+    width: 250px;
+    height: auto;
+  }
 
   @include tablets {
     left: auto;
@@ -18,6 +25,11 @@
     fill: $dark-brown;
     stroke: $red;
     stroke-width: 2px;
+    height: 100%;
+    width: 100%;
+    @include small {
+      height: 105px;
+    }
   }
   &__text-img-wrapper {
     position: absolute;

@@ -1,13 +1,24 @@
 .footer {
-  height: 80px;
   background-color: $dark-gray;
   display: flex;
-  justify-content: flex-end;
+  height: 80px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  @include small {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
 
   &__logo {
     display: inline-flex;
     width: 50%;
+    height: 25px;
+    margin-bottom: 1rem;
     position: relative;
+    @include small {
+      margin: 0;
+    }
   }
 
   &__text-img-wrapper {
@@ -23,11 +34,16 @@
   }
 
   &__copyright {
-    width: 25%;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding-right: 43px;
+    width: 50%;
+    text-align: center;
     color: #8e8e8e;
+    @include small {
+      display: flex;
+      text-align: right;
+      align-items: center;
+      justify-content: flex-end;
+      width: 25%;
+      padding-right: 43px;
+    }
   }
 }

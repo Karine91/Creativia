@@ -8,7 +8,6 @@ body {
   font-family: $mainFont;
   font-size: 16px;
   color: $gray;
-  overflow-x: hidden;
 }
 * {
   box-sizing: border-box;
@@ -37,4 +36,8 @@ p {
 a {
   text-decoration: none;
   color: $red;
+}
+
+.main {
+  overflow-x: hidden;
 }

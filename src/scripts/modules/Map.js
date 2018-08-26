@@ -21,9 +21,17 @@ class GoogleMap {
 
   initMap() {
     definePopupClass();
-
+    let mapWidth = this.$map.outerWidth();
+    let mapCenter;
+    if (mapWidth < 1005 && mapWidth > 960) {
+      mapCenter = { lat: -34.397, lng: 147.396 };
+    } else if (mapWidth > 1005) {
+      mapCenter = { lat: -34.397, lng: 148.396 };
+    } else {
+      mapCenter = { lat: -34.357, lng: this.lng };
+    }
     let map = new google.maps.Map(this.$map[0], {
-      center: { lat: -34.397, lng: 148.396 },
+      center: mapCenter,
       zoom: 8
     });
 

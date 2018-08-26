@@ -1,7 +1,9 @@
 .slider {
-  height: 600px;
+  height: calc(100vh - 70px);
   position: relative;
-  @include large {
+  transition: margin ease-out 0.3s;
+  margin-top: 70px;
+  @include tablets {
     height: 600px;
   }
 
@@ -39,6 +41,17 @@
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
+    @media screen and (orientation: landscape) {
+      min-width: 100%;
+      height: auto;
+      min-height: 100%;
+    }
+
+    @include tablets {
+      min-width: 100%;
+      height: auto;
+      min-height: 100%;
+    }
   }
 
   &__txt-wrapper {
@@ -60,23 +73,35 @@
     font-family: $headingFont;
     font-size: 3rem;
     line-height: 1;
-    margin-top: $m-size;
-    margin-bottom: 4rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    @include small {
+      margin-top: $m-size;
+      margin-bottom: 4rem;
+    }
   }
 
   &__description {
-    margin: 0 0 5rem;
+    margin: 0 0 1rem;
     padding: 0 5rem;
     line-height: 1.2;
     color: #fff;
+
+    @include atHeight(600px) {
+      margin: 0 0 5rem;
+    }
   }
 
   &__buttons {
     display: flex;
     justify-content: center;
     flex-direction: column;
+
     .btn {
-      margin-bottom: $m-size;
+      margin-bottom: 1rem;
+      @include small {
+        margin-bottom: $m-size;
+      }
     }
     @include small {
       flex-direction: row;
@@ -100,23 +125,32 @@
       top: 0;
       left: 0;
       content: "";
-      border-top: 300px solid transparent;
-      border-bottom: 300px solid rgba($dark-brown, 0.5);
+      border-top: calc(50vh - 35px) solid transparent;
+      border-bottom: calc(50vh - 35px) solid rgba($dark-brown, 0.5);
       border-right: 50vw solid rgba($dark-brown, 0.5);
       border-left: 49vw solid transparent;
       z-index: 15;
       transform: translateY(100%);
+      @include tablets {
+        border-top: 300px solid transparent;
+        border-bottom: 300px solid rgba($dark-brown, 0.5);
+      }
     }
     &:before {
       position: absolute;
       top: 0;
       left: 0;
       content: "";
-      border-bottom: 300px solid transparent;
-      border-top: 300px solid rgba(#000, 0.5);
+      border-bottom: calc(50vh - 35px) solid transparent;
+      border-top: calc(50vh - 35px) solid rgba(#000, 0.5);
       border-left: 50vw solid rgba(#000, 0.5);
       border-right: 49vw solid transparent;
       z-index: 15;
+
+      @include tablets {
+        border-bottom: 300px solid transparent;
+        border-top: 300px solid rgba(#000, 0.5);
+      }
       transform: translateY(-100%);
     }
 
@@ -165,6 +199,10 @@
       color: $red;
     }
   }
+}
+
+.header__sticky + .slider {
+  margin-top: 0;
 }
 
 @keyframes fadeIn {

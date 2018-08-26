@@ -64,7 +64,7 @@ include _mixins
         },
     ]
 
-.slider
+section(data-matching-link="#home-link" id="home").slider
     each slide, index in slides
         .slider__content(class= index == 0 ? 'slider__content--active' : '')
             .slider__img-wrapper

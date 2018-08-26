@@ -2,7 +2,7 @@ header.header
     .container
         .header__wrapper
             .logo
-                <svg class="logo__shape"  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="250" height="105">
+                <svg class="logo__shape"  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="250" height="105" viewBox="0 0 250 105">
                     <polygon points="0,0 250,0 250,40  185,105 65,105 0,40 0,0" />
                 </svg>
 
@@ -10,9 +10,46 @@ header.header
                     | Creativia
                     img.logo__image(src="/assets/images/logo-text.png", alt="Creactivia")
             nav.menu
-                - var menu = ["Home", "About us", "Portfolio", "clients", "team", "services", "blog", "contact"]
-                ul.menu__list
-                    each item in menu
-                        li.menu__item
-                            a.menu__link #{item}         
+                -
+                    var menu = [
+                        {
+                            title: "Home",
+                            link: "home"
+                        },
+                        {
+                            title: "About us",
+                            link: "about"
+                        },
+                        {
+                            title: "Portfolio",
+                            link: "portfolio"
+                        },
+                        {
+                            title: "clients",
+                            link: "clients"
+                        },
+                        {
+                            title: "team",
+                            link: "team"
+                        },
+                        {
+                            title: "services",
+                            link: "services"
+                        },
+                        {
+                            title: "blog",
+                            link: "blog"
+                        },
+                        {
+                            title: "contacts",
+                            link: "contacts"
+                        }
+                    ]
+                .humburger
+                    span.humburger__middle
+                .menu__list-wrapper
+                    ul.menu__list
+                        each item in menu
+                            li.menu__item(id=item.link + '-link')
+                                a(href='#'+item.link).menu__link #{item.title} 
         

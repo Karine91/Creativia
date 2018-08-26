@@ -15,27 +15,30 @@
       <header class="header">
         <div class="container">
           <div class="header__wrapper">
-            <div class="logo"><svg class="logo__shape"  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="250" height="105">
+            <div class="logo"><svg class="logo__shape"  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="250" height="105" viewBox="0 0 250 105">
 <polygon points="0,0 250,0 250,40  185,105 65,105 0,40 0,0" />
 </svg>
               <div class="logo__text-img-wrapper">Creativia<img class="logo__image" src="/assets/images/logo-text.png" alt="Creactivia"></div>
             </div>
             <nav class="menu">
-              <ul class="menu__list">
-                <li class="menu__item"><a class="menu__link">Home         </a></li>
-                <li class="menu__item"><a class="menu__link">About us         </a></li>
-                <li class="menu__item"><a class="menu__link">Portfolio         </a></li>
-                <li class="menu__item"><a class="menu__link">clients         </a></li>
-                <li class="menu__item"><a class="menu__link">team         </a></li>
-                <li class="menu__item"><a class="menu__link">services         </a></li>
-                <li class="menu__item"><a class="menu__link">blog         </a></li>
-                <li class="menu__item"><a class="menu__link">contact         </a></li>
-              </ul>
+              <div class="humburger"><span class="humburger__middle"></span></div>
+              <div class="menu__list-wrapper">
+                <ul class="menu__list">
+                  <li class="menu__item" id="home-link"><a class="menu__link" href="#home">Home </a></li>
+                  <li class="menu__item" id="about-link"><a class="menu__link" href="#about">About us </a></li>
+                  <li class="menu__item" id="portfolio-link"><a class="menu__link" href="#portfolio">Portfolio </a></li>
+                  <li class="menu__item" id="clients-link"><a class="menu__link" href="#clients">clients </a></li>
+                  <li class="menu__item" id="team-link"><a class="menu__link" href="#team">team </a></li>
+                  <li class="menu__item" id="services-link"><a class="menu__link" href="#services">services </a></li>
+                  <li class="menu__item" id="blog-link"><a class="menu__link" href="#blog">blog </a></li>
+                  <li class="menu__item" id="contacts-link"><a class="menu__link" href="#contacts">contacts </a></li>
+                </ul>
+              </div>
             </nav>
           </div>
         </div>
       </header>
-      <div class="slider">
+      <section class="slider" data-matching-link="#home-link" id="home">
         <div class="slider__content slider__content--active">
           <div class="slider__img-wrapper">
             <picture>
@@ -157,8 +160,8 @@
                   <svg class="icon icon--arrow-right " width="30" height="25">
                     <use xlink:href="assets/images/sprites/symbol/sprite.svg#arrow-right"></use>
                   </svg></a></div>
-      </div>
-      <section class="section">
+      </section>
+      <section class="section" data-matching-link="#about-link" id="about">
         <div class="container">
           <div class="section__header">
             <h2 class="section__title">about <strong>creativia </strong></h2>
@@ -300,7 +303,7 @@
           </div>
         </div>
       </section>
-      <section class="section section--dark">
+      <section class="section section--dark" data-matching-link="#portfolio-link" id="portfolio">
         <div class="section__header">
           <div class="container">
             <h2 class="section__title section__title--white">portfolio</h2>
@@ -450,7 +453,7 @@
           </div>
         </div>
       </section>
-      <section class="section section--clients section--overlay">
+      <section class="section section--clients section--overlay" data-matching-link="#clients-link" id="clients">
         <div class="container">
           <div class="section__header">
             <h2 class="section__title section__title--white">our <strong>clients</strong></h2>
@@ -520,7 +523,7 @@
                 <use xlink:href="assets/images/sprites/symbol/sprite.svg#shape"></use>
               </svg>
       </div>
-      <section class="section">
+      <section class="section" data-matching-link="#team-link" id="team">
         <div class="container">
           <div class="section__header">
             <h2 class="section__title">our <strong>teamwork</strong></h2>
@@ -750,7 +753,7 @@
           </div>
         </div>
       </section>
-      <section class="section section--dark">
+      <section class="section section--dark" data-matching-link="#services-link" id="services">
         <div class="container">
           <div class="section__header">
             <h2 class="section__title section__title--white">our <strong>services </strong></h2>
@@ -959,7 +962,7 @@
                 <use xlink:href="assets/images/sprites/symbol/sprite.svg#shape"></use>
               </svg>
       </div>
-      <section class="section">
+      <section class="section" data-matching-link="#blog-link" id="blog">
         <div class="container">
           <div class="section__header">
             <h2 class="section__title">our <strong>blog </strong></h2>
@@ -1083,7 +1086,7 @@
                 <use xlink:href="assets/images/sprites/symbol/sprite.svg#shape"></use>
               </svg>
       </div>
-      <section class="section">
+      <section class="section" data-matching-link="#contacts-link" id="contacts">
         <div class="container">
           <div class="section__header">
             <h2 class="section__title">Find us <strong>here</strong></h2>

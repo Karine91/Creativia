@@ -1,5 +1,6 @@
 import $ from "jquery";
 import "jquery-validation";
+import StickyHeader from "./modules/StickyHeader";
 import Slider from "./modules/Slider";
 import Portfolio from "./modules/Portfolio";
 import Accordion from "./modules/Accordion";
@@ -11,6 +12,7 @@ import Blog from "./modules/Blog";
 import Follow from "./modules/Follow";
 import GoogleMap from "./modules/Map";
 import Validation from "./modules/Validation";
+import MobileMenu from "./modules/MobileMenu";
 
 const skillsList = [
   {
@@ -39,6 +41,8 @@ const followList = [
 ];
 
 $(document).ready(function() {
+  new StickyHeader();
+  new MobileMenu();
   new Slider();
   new Portfolio();
   new Accordion();
