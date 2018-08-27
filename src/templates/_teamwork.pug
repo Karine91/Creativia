@@ -30,7 +30,7 @@ section(data-matching-link="#team-link" id="team").section
                     .row__col.row__col--s-6.row__col--md-3
                         .employee
                             .employee__picture
-                                img(src=`assets/images/workers/employee${index +1}.jpg`)
+                                img.lazyload(data-src=`assets/images/workers/employee${index +1}.jpg`)
                                 .employee__picture-overlay
                                     ul.socials
                                         each icon in ['facebook', 'twitter', 'google-plus']

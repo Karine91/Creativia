@@ -39,19 +39,19 @@ section(data-matching-link="#clients-link" id="clients").section.section--client
                                     .testimonials__image-wrap
                                         .hexagon-wrap
                                             .hexagon
-                                                img.hexagon__image(src=item.img, alt="")
+                                                img.lazyload.hexagon__image(data-src=item.img, alt="")
                                     .testimonials__author #{item.author}
                         .testimonials-nav
                 .row__col.row__col--md-6
                     .partners
                         .partners__box
-                            img(src="assets/images/testimonials/partners1.png", alt="")
+                            img.lazyload(data-src="assets/images/testimonials/partners1.png", alt="")
                         .partners__box
-                            img(src="assets/images/testimonials/partners2.png", alt="")
+                            img.lazyload(data-src="assets/images/testimonials/partners2.png", alt="")
                         .partners__box
-                            img(src="assets/images/testimonials/partners3.png", alt="")
+                            img.lazyload(data-src="assets/images/testimonials/partners3.png", alt="")
                         .partners__box
-                            img(src="assets/images/testimonials/partners4.png", alt="")
+                            img.lazyload(data-src="assets/images/testimonials/partners4.png", alt="")
 .divider.divider--red
         hr.divider__hr
         +icon('shape')      

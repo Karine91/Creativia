@@ -41,3 +41,13 @@ a {
 .main {
   overflow-x: hidden;
 }
+
+.lazyload {
+  opacity: 0;
+}
+
+.lazyloading {
+  opacity: 1;
+  transition: opacity 300ms;
+  background: #f7f7f7 url("../images/loader.gif") no-repeat center;
+}

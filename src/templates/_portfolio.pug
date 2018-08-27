@@ -49,7 +49,7 @@ section(data-matching-link="#portfolio-link" id="portfolio").section.section--da
                 ]
             each item in portfolioArr
                 .portfolio__item(data-filter-value=item.filter class=item.big ? 'portfolio__item--big' : '') 
-                    .portfolio__image(style="background-image: url('assets/images/portfolio/portfolio" + item.index +".jpg')")
+                    .portfolio__image.lazyload(data-bg="assets/images/portfolio/portfolio" + item.index +".jpg")
                     .portfolio__item-overlay
                         span.portfolio__item-plus +
                         .portfolio__item-title design name

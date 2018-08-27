@@ -1,7 +1,9 @@
 import Isotope from "isotope-layout";
+import waypoints from "waypoints/lib/noframework.waypoints";
 
 class Portfolio {
   constructor() {
+    this.$lazyImages = $(".lazyload");
     this.portfolioWrapSelector = ".portfolio";
     this.portfolioItemSelector = ".portfolio__item";
     this.$filters = $(".filters__link");
@@ -16,6 +18,12 @@ class Portfolio {
     return filter === value;
   }
 
+  refreshWaypoints() {
+    this.$lazyImages.on("load", () => {
+      Waypoint.refreshAll();
+    });
+  }
+
   onFilterClick(e) {
     e.preventDefault();
     let filterValue = $(e.target).data("filter");
@@ -26,6 +34,7 @@ class Portfolio {
     this.grid.arrange({
       filter: elem => this.filterFunction(elem, filterValue)
     });
+    Waypoint.refreshAll();
   }
 
   events() {

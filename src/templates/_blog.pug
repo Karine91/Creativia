@@ -23,7 +23,7 @@ section.section(data-matching-link="#blog-link" id="blog")
                 .blog-item
                     .row
                         .row__col.row__col--s-4
-                            .blog-item__picture(style=`background-image: url(${item.img})`)
+                            .blog-item__picture.lazyload(data-bg=`${item.img}`)
                         .row__col.row__col--s-8
                             .blog-item__content
                                 .blog-item__title #{item.title}
